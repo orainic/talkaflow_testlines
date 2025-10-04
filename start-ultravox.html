@@ -261,24 +261,22 @@
     // Create call via API
     async function createCall() {
       try {
-        log('Creating new call...');
-        log(`API URL: ${CONFIG.apiUrl}/agents/${CONFIG.agentId}/calls`);
+        log('Creating new call via proxy...');
+        log(`Proxy URL: /api/ultravox`);
 
-        const response = await fetch(`${CONFIG.apiUrl}/agents/${CONFIG.agentId}/calls`, {
+        const response = await fetch('/api/ultravox', {
           method: 'POST',
           headers: {
-            'X-API-Key': CONFIG.apiKey,
             'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ medium: { webRtc: {} } })
+          }
         });
 
         log(`Response status: ${response.status}`);
 
         if (!response.ok) {
-          const errorText = await response.text();
-          log(`API error response: ${errorText}`, 'error');
-          throw new Error(`API Error ${response.status}: ${errorText}`);
+          const errorData = await response.json();
+          log(`API error response: ${JSON.stringify(errorData)}`, 'error');
+          throw new Error(`API Error ${response.status}: ${errorData.error || 'Unknown error'}`);
         }
 
         const data = await response.json();
@@ -287,7 +285,7 @@
       } catch (error) {
         log(`Fetch error: ${error.message}`, 'error');
         if (error.message.includes('Failed to fetch')) {
-          throw new Error('Network error: Unable to connect to Ultravox API. This may be a CORS issue or network connectivity problem. Check browser console for details.');
+          throw new Error('Network error: Unable to connect to API proxy. Check browser console for details.');
         }
         throw error;
       }
