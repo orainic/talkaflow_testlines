@@ -102,18 +102,29 @@
       </div>
     </div>
 
-    <!-- Debug Panel (Hidden by default) -->
-    <div class="bg-white rounded-lg shadow-lg p-6">
-      <details>
-        <summary class="cursor-pointer font-medium text-gray-700 hover:text-gray-900 flex items-center">
-          <i class="fas fa-cog mr-2"></i>
-          Technical Information
-          <i class="fas fa-chevron-down ml-auto"></i>
-        </summary>
-        <div id="debugInfo" class="mt-4 p-4 bg-gray-50 rounded-lg text-xs font-mono text-gray-600 max-h-40 overflow-y-auto">
+    <!-- Debug Panel - Small Icon Only -->
+    <div class="fixed bottom-4 right-4">
+      <button id="debugToggle" class="bg-gray-200 hover:bg-gray-300 text-gray-600 w-10 h-10 rounded-full shadow-lg flex items-center justify-center transition-all" title="Technical Information">
+        <i class="fas fa-info text-sm"></i>
+      </button>
+    </div>
+
+    <!-- Debug Panel Modal (Hidden by default) -->
+    <div id="debugModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+      <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-96 flex flex-col">
+        <div class="flex items-center justify-between p-4 border-b">
+          <h3 class="font-medium text-gray-900 flex items-center">
+            <i class="fas fa-cog mr-2"></i>
+            Technical Information
+          </h3>
+          <button id="debugClose" class="text-gray-400 hover:text-gray-600">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div id="debugInfo" class="p-4 text-xs font-mono text-gray-600 overflow-y-auto flex-1">
           <p>Loading system...</p>
         </div>
-      </details>
+      </div>
     </div>
   </div>
 
@@ -197,6 +208,9 @@
     const statusText = document.getElementById('statusText');
     const conversation = document.getElementById('conversation');
     const debugInfo = document.getElementById('debugInfo');
+    const debugToggle = document.getElementById('debugToggle');
+    const debugModal = document.getElementById('debugModal');
+    const debugClose = document.getElementById('debugClose');
 
     // State
     let session = null;
@@ -416,6 +430,25 @@
         endCall();
       } else {
         startCall();
+      }
+    });
+
+    // Debug modal handlers
+    debugToggle.addEventListener('click', () => {
+      debugModal.classList.remove('hidden');
+      debugModal.classList.add('flex');
+    });
+
+    debugClose.addEventListener('click', () => {
+      debugModal.classList.add('hidden');
+      debugModal.classList.remove('flex');
+    });
+
+    // Close modal when clicking outside
+    debugModal.addEventListener('click', (e) => {
+      if (e.target === debugModal) {
+        debugModal.classList.add('hidden');
+        debugModal.classList.remove('flex');
       }
     });
 
