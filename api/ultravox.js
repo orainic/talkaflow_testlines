@@ -16,9 +16,15 @@ export default async function handler(req, res) {
     return;
   }
 
-  const ULTRAVOX_API_KEY = 'Sid4RoQc.3uuN493Jc06KqobeqBZaD5YNedjXQnXF';
+  // Get API key from environment variable (set in Vercel dashboard)
+  const ULTRAVOX_API_KEY = process.env.ULTRAVOX_API_KEY;
 
-  // Get agent ID from request body or default to hotel
+  if (!ULTRAVOX_API_KEY) {
+    res.status(500).json({ error: 'API key not configured. Please set ULTRAVOX_API_KEY environment variable in Vercel.' });
+    return;
+  }
+
+  // Get agent ID from request body
   const { agentId } = req.body;
 
   if (!agentId) {
