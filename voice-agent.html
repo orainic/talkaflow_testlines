@@ -369,8 +369,9 @@
 
         // Setup listeners
         session.addEventListener('status', () => {
+          const previousStatus = session.status;
           updateStatus(session.status);
-          log(`Status: ${session.status}`);
+          log(`Status changed: ${previousStatus} → ${session.status}`);
         });
 
         session.addEventListener('transcripts', () => {
@@ -387,9 +388,46 @@
           }
         });
 
+        // Add error and disconnect listeners for diagnostics
+        session.addEventListener('error', (event) => {
+          log(`⚠️ Session error: ${JSON.stringify(event)}`, 'error');
+          console.error('Ultravox session error:', event);
+        });
+
+        session.addEventListener('disconnect', (event) => {
+          log(`🔌 Session disconnected: ${JSON.stringify(event)}`, 'error');
+          console.warn('Ultravox session disconnected:', event);
+          updateStatus('disconnected');
+
+          // Show alert to user about unexpected disconnect
+          if (isConnected) {
+            alert('Call disconnected unexpectedly. Please check your internet connection and try again.');
+          }
+        });
+
+        // Monitor connection quality
+        let lastActivityTime = Date.now();
+        const activityMonitor = setInterval(() => {
+          if (session && isConnected) {
+            const timeSinceActivity = Date.now() - lastActivityTime;
+            if (timeSinceActivity > 30000) { // 30 seconds of silence
+              log(`⚠️ No activity for ${Math.floor(timeSinceActivity / 1000)}s`, 'error');
+            }
+          } else {
+            clearInterval(activityMonitor);
+          }
+        }, 10000); // Check every 10 seconds
+
+        // Track activity
+        session.addEventListener('transcripts', () => {
+          lastActivityTime = Date.now();
+        });
+
         // Join call
+        log('Joining call with Ultravox...');
         await session.joinCall(callData.joinUrl);
-        log('Voice call connected!', 'success');
+        log('✅ Voice call connected!', 'success');
+        lastActivityTime = Date.now();
 
       } catch (error) {
         log(`Call failed: ${error.message}`, 'error');
@@ -452,6 +490,18 @@
       }
     });
 
+    // Monitor network connectivity
+    window.addEventListener('online', () => {
+      log('✅ Network connection restored', 'success');
+    });
+
+    window.addEventListener('offline', () => {
+      log('❌ Network connection lost!', 'error');
+      if (session && isConnected) {
+        alert('Network connection lost. The call may disconnect.');
+      }
+    });
+
     // Auto-cleanup when page is closed or navigated away
     window.addEventListener('beforeunload', (event) => {
       if (session && isConnected) {
@@ -501,6 +551,13 @@
     // Initialize
     document.addEventListener('DOMContentLoaded', async () => {
       log('TalkaFlow Voice AI Interface loaded');
+
+      // Log system information for diagnostics
+      log(`Browser: ${navigator.userAgent}`);
+      log(`Online: ${navigator.onLine ? 'Yes' : 'No'}`);
+      log(`Connection: ${navigator.connection?.effectiveType || 'Unknown'}`);
+      log(`Agent Type: ${agentType}`);
+
       updateStatus('disconnected');
 
       // Load SDK
