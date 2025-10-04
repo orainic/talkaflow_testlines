@@ -242,21 +242,34 @@
 
     // Create call
     async function createCall() {
-      const response = await fetch(`${CONFIG.apiUrl}/agents/${CONFIG.agentId}/calls`, {
-        method: 'POST',
-        headers: {
-          'X-API-Key': CONFIG.apiKey,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ medium: { webRtc: {} } })
-      });
+      try {
+        log(`Making API request to: ${CONFIG.apiUrl}/agents/${CONFIG.agentId}/calls`);
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`API Error ${response.status}: ${errorText}`);
+        const response = await fetch(`${CONFIG.apiUrl}/agents/${CONFIG.agentId}/calls`, {
+          method: 'POST',
+          headers: {
+            'X-API-Key': CONFIG.apiKey,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ medium: { webRtc: {} } })
+        });
+
+        log(`Response status: ${response.status}`);
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          log(`API error response: ${errorText}`, 'error');
+          throw new Error(`API Error ${response.status}: ${errorText}`);
+        }
+
+        return await response.json();
+      } catch (error) {
+        log(`Fetch error: ${error.message}`, 'error');
+        if (error.message.includes('Failed to fetch')) {
+          throw new Error('Network error: Unable to connect to Ultravox API. This may be a CORS issue or network connectivity problem.');
+        }
+        throw error;
       }
-
-      return await response.json();
     }
 
     // Start call
