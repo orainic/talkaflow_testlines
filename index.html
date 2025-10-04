@@ -159,8 +159,7 @@
     let session = null;
     let isConnected = false;
     let audioStream = null;
-    let lastTranscriptId = null;
-    let currentMessageElement = null;
+    let transcriptMap = new Map(); // Track messages by speaker-specific IDs
 
     // Logging
     function log(message, type = 'info') {
@@ -210,14 +209,17 @@
     }
 
     // Add or update message to conversation
-    function addOrUpdateMessage(speaker, text, transcriptId) {
+    function addOrUpdateMessage(speaker, text, isFinal = false) {
       if (conversation.children.length === 1 && conversation.children[0].querySelector('.fa-microphone')) {
         conversation.innerHTML = '';
       }
 
-      // Check if we should update the last message
-      if (transcriptId === lastTranscriptId && currentMessageElement) {
-        const textElement = currentMessageElement.querySelector('p');
+      // Check if we have an existing message for this speaker
+      const existingMessage = transcriptMap.get(speaker);
+
+      if (existingMessage && !isFinal) {
+        // Update existing message
+        const textElement = existingMessage.querySelector('p');
         if (textElement) {
           textElement.textContent = text;
           conversation.scrollTop = conversation.scrollHeight;
@@ -225,8 +227,7 @@
         }
       }
 
-      // Create new message
-      lastTranscriptId = transcriptId;
+      // Create new message (either first message or final message)
       const messageDiv = document.createElement('div');
       messageDiv.className = `flex items-start space-x-3 p-4 rounded-lg ${
         speaker === 'user'
@@ -240,7 +241,10 @@
             ? `<div class="w-8 h-8 rounded-full flex items-center justify-center bg-blue-600 text-white">
                 <i class="fas fa-user text-sm"></i>
               </div>`
-            : `<img src="/talkaFlow_logo_only.png" alt="TalkaFlow" class="w-8 h-8 rounded-full object-cover" />`
+            : `<img src="talkaFlow_logo_only.png" alt="TalkaFlow" class="w-8 h-8 rounded-full object-cover" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" />
+               <div class="w-8 h-8 rounded-full bg-gray-600 text-white items-center justify-center" style="display:none;">
+                <i class="fas fa-robot text-sm"></i>
+              </div>`
           }
         </div>
         <div class="flex-1">
@@ -251,14 +255,20 @@
         </div>
       `;
 
-      currentMessageElement = messageDiv;
       conversation.appendChild(messageDiv);
       conversation.scrollTop = conversation.scrollHeight;
+
+      // Store reference to this message
+      if (isFinal) {
+        transcriptMap.delete(speaker); // Clear for next message
+      } else {
+        transcriptMap.set(speaker, messageDiv);
+      }
     }
 
     // Legacy function for static messages
     function addMessage(speaker, text) {
-      addOrUpdateMessage(speaker, text, Math.random());
+      addOrUpdateMessage(speaker, text, true);
     }
 
     // Create call
@@ -320,15 +330,13 @@
           const transcripts = session.transcripts;
           if (transcripts && transcripts.length > 0) {
             const latest = transcripts[transcripts.length - 1];
-            log(`Transcript: [${latest.speaker}] ${latest.text}`);
+            log(`Transcript: [${latest.speaker}] "${latest.text}" (final: ${latest.isFinal})`);
 
-            // Use the transcript's ordinal as a unique ID
-            const transcriptId = `${latest.speaker}-${latest.ordinal || transcripts.length - 1}`;
-            addOrUpdateMessage(
-              latest.speaker === 'user' ? 'user' : 'agent',
-              latest.text,
-              transcriptId
-            );
+            // Determine speaker
+            const speaker = latest.speaker === 'user' ? 'user' : 'agent';
+
+            // Update or create message
+            addOrUpdateMessage(speaker, latest.text, latest.isFinal);
           }
         });
 
