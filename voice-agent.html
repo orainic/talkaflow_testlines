@@ -122,9 +122,23 @@
     let agentConfig = null;
     let agentsData = null;
 
-    // Parse URL to get agent type
-    const urlParams = new URLSearchParams(window.location.search);
-    const agentType = urlParams.get('agent') || 'hotel';
+    // Parse URL to get agent type - check both path and query param
+    function getAgentType() {
+      // First check query parameter
+      const urlParams = new URLSearchParams(window.location.search);
+      const queryAgent = urlParams.get('agent');
+      if (queryAgent) return queryAgent;
+
+      // Then check path (e.g., /hotel, /clinic)
+      const path = window.location.pathname;
+      const pathMatch = path.match(/\/(hotel|clinic|aftersales|restaurant|hairstudio|hepa)/);
+      if (pathMatch) return pathMatch[1];
+
+      // Default to hotel
+      return 'hotel';
+    }
+
+    const agentType = getAgentType();
 
     // Load agents config
     fetch('/agents-config.json')
