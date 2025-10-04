@@ -102,10 +102,25 @@
       </div>
     </div>
 
-    <!-- Debug Panel - Small Icon Only -->
-    <div class="fixed bottom-4 right-4">
-      <button id="debugToggle" class="bg-gray-200 hover:bg-gray-300 text-gray-600 w-10 h-10 rounded-full shadow-lg flex items-center justify-center transition-all" title="Technical Information">
-        <i class="fas fa-info text-sm"></i>
+    <!-- Debug Panel - Small Icon with Preview -->
+    <div class="fixed bottom-4 right-4 z-40">
+      <!-- Compact Preview (collapsed state) -->
+      <div id="debugPreview" class="bg-white rounded-lg shadow-xl mb-2 p-3 max-w-xs hidden">
+        <div class="flex items-center justify-between mb-2">
+          <h4 class="text-xs font-semibold text-gray-700">Recent Logs</h4>
+          <button id="debugExpandBtn" class="text-blue-600 hover:text-blue-800 text-xs">
+            <i class="fas fa-expand-alt"></i>
+          </button>
+        </div>
+        <div id="debugPreviewContent" class="text-xs font-mono text-gray-600 max-h-32 overflow-y-auto space-y-1">
+          <p>Loading...</p>
+        </div>
+      </div>
+
+      <!-- Toggle Button -->
+      <button id="debugToggle" class="bg-blue-600 hover:bg-blue-700 text-white w-12 h-12 rounded-full shadow-lg flex items-center justify-center transition-all relative" title="Debug Logs">
+        <i class="fas fa-bug text-lg"></i>
+        <span id="debugBadge" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-5 h-5 rounded-full hidden items-center justify-center font-bold">0</span>
       </button>
     </div>
 
@@ -211,12 +226,18 @@
     const debugToggle = document.getElementById('debugToggle');
     const debugModal = document.getElementById('debugModal');
     const debugClose = document.getElementById('debugClose');
+    const debugPreview = document.getElementById('debugPreview');
+    const debugPreviewContent = document.getElementById('debugPreviewContent');
+    const debugBadge = document.getElementById('debugBadge');
+    const debugExpandBtn = document.getElementById('debugExpandBtn');
 
     // State
     let session = null;
     let isConnected = false;
     let audioStream = null;
     let transcriptMap = new Map(); // Track messages by speaker-specific IDs
+    let logHistory = [];
+    let errorCount = 0;
 
     // Logging
     function log(message, type = 'info') {
@@ -230,6 +251,34 @@
       debugInfo.appendChild(div);
       debugInfo.scrollTop = debugInfo.scrollHeight;
       console.log(`[${timestamp}] ${message}`);
+
+      // Track in history
+      logHistory.push({ timestamp, message, type, icon });
+      if (logHistory.length > 50) logHistory.shift(); // Keep last 50 logs
+
+      // Update error count
+      if (type === 'error') {
+        errorCount++;
+        debugBadge.textContent = errorCount;
+        debugBadge.classList.remove('hidden');
+
+        // Auto-show preview on errors
+        setTimeout(() => {
+          debugPreview.classList.remove('hidden');
+        }, 100);
+      }
+
+      // Update preview with last 5 logs
+      updateDebugPreview();
+    }
+
+    // Update debug preview panel
+    function updateDebugPreview() {
+      const recentLogs = logHistory.slice(-5);
+      debugPreviewContent.innerHTML = recentLogs.map(entry => {
+        const color = entry.type === 'error' ? 'text-red-600' : entry.type === 'success' ? 'text-green-600' : 'text-gray-600';
+        return `<div class="${color}">${entry.icon} ${entry.message.substring(0, 60)}${entry.message.length > 60 ? '...' : ''}</div>`;
+      }).join('');
     }
 
     // Update status
@@ -514,12 +563,26 @@
       }
     });
 
-    // Debug modal handlers
+    // Debug preview toggle
+    let previewVisible = false;
     debugToggle.addEventListener('click', () => {
+      previewVisible = !previewVisible;
+      if (previewVisible) {
+        debugPreview.classList.remove('hidden');
+      } else {
+        debugPreview.classList.add('hidden');
+      }
+    });
+
+    // Debug expand button - opens full modal
+    debugExpandBtn.addEventListener('click', () => {
+      debugPreview.classList.add('hidden');
+      previewVisible = false;
       debugModal.classList.remove('hidden');
       debugModal.classList.add('flex');
     });
 
+    // Debug modal close
     debugClose.addEventListener('click', () => {
       debugModal.classList.add('hidden');
       debugModal.classList.remove('flex');
