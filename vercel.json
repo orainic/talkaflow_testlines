@@ -4,7 +4,31 @@
   "rewrites": [
     {
       "source": "/",
-      "destination": "/index.html"
+      "destination": "/voice-agent.html"
+    },
+    {
+      "source": "/hotel",
+      "destination": "/voice-agent.html?agent=hotel"
+    },
+    {
+      "source": "/clinic",
+      "destination": "/voice-agent.html?agent=clinic"
+    },
+    {
+      "source": "/aftersales",
+      "destination": "/voice-agent.html?agent=aftersales"
+    },
+    {
+      "source": "/restaurant",
+      "destination": "/voice-agent.html?agent=restaurant"
+    },
+    {
+      "source": "/hairstudio",
+      "destination": "/voice-agent.html?agent=hairstudio"
+    },
+    {
+      "source": "/hepa",
+      "destination": "/voice-agent.html?agent=hepa"
     },
     {
       "source": "/api/ultravox",

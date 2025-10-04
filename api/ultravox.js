@@ -17,12 +17,19 @@ export default async function handler(req, res) {
   }
 
   const ULTRAVOX_API_KEY = 'Sid4RoQc.3uuN493Jc06KqobeqBZaD5YNedjXQnXF';
-  const AGENT_ID = 'f6dd7bbb-ae88-4ebc-addf-d0a2203f9555';
+
+  // Get agent ID from request body or default to hotel
+  const { agentId } = req.body;
+
+  if (!agentId) {
+    res.status(400).json({ error: 'Agent ID is required' });
+    return;
+  }
 
   try {
     // Make request to Ultravox API
     const response = await fetch(
-      `https://api.ultravox.ai/api/agents/${AGENT_ID}/calls`,
+      `https://api.ultravox.ai/api/agents/${agentId}/calls`,
       {
         method: 'POST',
         headers: {

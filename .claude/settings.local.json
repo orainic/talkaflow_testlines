@@ -5,7 +5,10 @@
       "WebSearch",
       "WebFetch(domain:github.com)",
       "Bash(curl:*)",
-      "WebFetch(domain:unpkg.com)"
+      "WebFetch(domain:unpkg.com)",
+      "Bash(git push:*)",
+      "Bash(git stash:*)",
+      "WebFetch(domain:talkaflow-testlines.vercel.app)"
     ],
     "deny": [],
     "ask": []

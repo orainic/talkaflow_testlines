@@ -1,0 +1,113 @@
+{
+  "name": "Demo_LARTISAN_MENS_HAIR_STUDIO",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "Demo_LARTISAN_MENS_HAIR_STUDIO",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -48,
+        0
+      ],
+      "id": "c1c5a2ab-010e-4406-929c-79bd44217fcd",
+      "name": "Webhook",
+      "webhookId": "db53da54-e1fc-410a-aaa9-ad415a84fa19"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.ultravox.ai/api/agents/056b0abf-b196-4a3d-80ec-a33371f7e13e/calls",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {}
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"medium\": { \"twilio\": {} }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        224,
+        0
+      ],
+      "id": "f26835f7-cd8e-4fe3-9015-e0aede761842",
+      "name": "HTTP Request",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "YDZsHjnYNe6q0nk7",
+          "name": "Ultravox"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "=<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<Response>\n   <Connect>\n       <Stream url=\"{{ $json.joinUrl }}\" />\n   </Connect>\n   <Say>This instruction is unreachable unless the Stream is ended by your WebSocket server.</Say>\n</Response>",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "text/xml; charset=UTF-8"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        464,
+        0
+      ],
+      "id": "54a266cf-32c8-49e2-9232-f6cc3d75ff81",
+      "name": "Respond to Webhook"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "1d750c8a-d802-4c66-a8e3-d0a66cfe451f",
+  "meta": {
+    "instanceId": "103081d373997b7ee460f88dc127c97aa0ffb58ca86a5dce5a823011669aa9bd"
+  },
+  "id": "SBU50fWuEJh8LB34",
+  "tags": []
+}

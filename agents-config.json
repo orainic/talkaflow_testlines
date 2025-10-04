@@ -1,0 +1,92 @@
+{
+  "hotel": {
+    "id": "f6dd7bbb-ae88-4ebc-addf-d0a2203f9555",
+    "name": "DoubleTree Auckland Karaka",
+    "title": "Hotel Guest Services",
+    "description": "AI-powered hotel concierge for guest services",
+    "icon": "fa-hotel",
+    "suggestions": [
+      "I need room service",
+      "What amenities do you have?",
+      "I need housekeeping",
+      "What's nearby to visit?",
+      "I have a maintenance issue",
+      "I need a wake-up call"
+    ]
+  },
+  "clinic": {
+    "id": "2e187b77-75b4-4d33-97dc-78675babac81",
+    "name": "Medical Clinic",
+    "title": "GP Clinic Reception",
+    "description": "AI receptionist for medical appointments",
+    "icon": "fa-stethoscope",
+    "suggestions": [
+      "I'd like to book an appointment",
+      "What are your opening hours?",
+      "I need to see a doctor",
+      "Do you accept walk-ins?",
+      "I need to cancel my appointment",
+      "What services do you offer?"
+    ]
+  },
+  "aftersales": {
+    "id": "32605cc1-70a5-4900-97ad-5c866efc07cf",
+    "name": "Powerbay Support",
+    "title": "After-Sales Support",
+    "description": "Customer support for product assistance",
+    "icon": "fa-headset",
+    "suggestions": [
+      "I need help with my product",
+      "How do I return an item?",
+      "My product isn't working",
+      "What's your warranty policy?",
+      "I have a technical question",
+      "How do I track my order?"
+    ]
+  },
+  "restaurant": {
+    "id": "badeb30e-22d3-49c9-ad58-ff029473f796",
+    "name": "Restaurant",
+    "title": "Restaurant Reservations",
+    "description": "AI assistant for dining reservations",
+    "icon": "fa-utensils",
+    "suggestions": [
+      "I'd like to make a reservation",
+      "What's on the menu today?",
+      "Do you have vegetarian options?",
+      "What are your opening hours?",
+      "Can I book a table for 6 people?",
+      "Do you cater for allergies?"
+    ]
+  },
+  "hairstudio": {
+    "id": "056b0abf-b196-4a3d-80ec-a33371f7e13e",
+    "name": "L'Artisan Men's Hair Studio",
+    "title": "Hair Studio Booking",
+    "description": "Book appointments at our premium hair salon",
+    "icon": "fa-cut",
+    "suggestions": [
+      "I'd like to book a haircut",
+      "What services do you offer?",
+      "How much is a haircut?",
+      "What are your opening hours?",
+      "Can I see a specific stylist?",
+      "Do you do beard trims?"
+    ]
+  },
+  "hepa": {
+    "id": "d92f1c3b-1ee3-4ff5-86c9-ebe18b5b3bcd",
+    "name": "HEPA Maintenance",
+    "title": "HEPA Maintenance Support",
+    "description": "Technical support for HEPA systems",
+    "icon": "fa-tools",
+    "suggestions": [
+      "I need maintenance scheduled",
+      "My HEPA filter needs replacing",
+      "System troubleshooting help",
+      "What's included in maintenance?",
+      "How often should filters be changed?",
+      "I have an urgent repair needed"
+    ]
+  }
+}
