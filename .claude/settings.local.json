@@ -8,7 +8,8 @@
       "WebFetch(domain:unpkg.com)",
       "Bash(git push:*)",
       "Bash(git stash:*)",
-      "WebFetch(domain:talkaflow-testlines.vercel.app)"
+      "WebFetch(domain:talkaflow-testlines.vercel.app)",
+      "Bash(git rm:*)"
     ],
     "deny": [],
     "ask": []
