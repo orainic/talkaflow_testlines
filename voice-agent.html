@@ -314,46 +314,62 @@
       }
     }
 
+    // Track current speaker's message element
+    let currentMessageElement = null;
+    let currentSpeaker = null;
+
     // Add or update message to conversation
     function addOrUpdateMessage(speaker, text, isFinal = false) {
       if (conversation.children.length === 1 && conversation.children[0].querySelector('.fa-microphone')) {
         conversation.innerHTML = '';
       }
 
-      // Only show final transcripts to avoid duplicates
-      if (!isFinal) {
-        return; // Skip interim/non-final transcripts
+      // If different speaker or this is final, create new message
+      if (speaker !== currentSpeaker || isFinal) {
+        // Create new message bubble
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `flex items-start space-x-3 p-4 rounded-lg ${
+          speaker === 'user'
+            ? 'bg-blue-100 border-l-4 border-blue-500 ml-4'
+            : 'bg-white border-l-4 border-gray-300 mr-4 shadow-sm'
+        }`;
+
+        messageDiv.innerHTML = `
+          <div class="flex-shrink-0">
+            ${speaker === 'user'
+              ? `<div class="w-8 h-8 rounded-full flex items-center justify-center bg-blue-600 text-white">
+                  <i class="fas fa-user text-sm"></i>
+                </div>`
+              : `<img src="talkaFlow_logo_only.png" alt="TalkaFlow" class="w-8 h-8 rounded-full object-cover" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" />
+                 <div class="w-8 h-8 rounded-full bg-gray-600 text-white items-center justify-center" style="display:none;">
+                  <i class="fas fa-robot text-sm"></i>
+                </div>`
+            }
+          </div>
+          <div class="flex-1">
+            <div class="font-medium text-sm ${speaker === 'user' ? 'text-blue-900' : 'text-gray-900'} mb-1">
+              ${speaker === 'user' ? 'You' : (agentConfig ? agentConfig.name : 'AI Assistant')}
+            </div>
+            <p class="text-gray-700 message-text">${text}</p>
+          </div>
+        `;
+
+        conversation.appendChild(messageDiv);
+        currentMessageElement = messageDiv.querySelector('.message-text');
+        currentSpeaker = speaker;
+
+        // If final, reset tracking
+        if (isFinal) {
+          currentMessageElement = null;
+          currentSpeaker = null;
+        }
+      } else {
+        // Same speaker, update existing bubble in real-time
+        if (currentMessageElement) {
+          currentMessageElement.textContent = text;
+        }
       }
 
-      // Create new message for final transcript
-      const messageDiv = document.createElement('div');
-      messageDiv.className = `flex items-start space-x-3 p-4 rounded-lg ${
-        speaker === 'user'
-          ? 'bg-blue-100 border-l-4 border-blue-500 ml-4'
-          : 'bg-white border-l-4 border-gray-300 mr-4 shadow-sm'
-      }`;
-
-      messageDiv.innerHTML = `
-        <div class="flex-shrink-0">
-          ${speaker === 'user'
-            ? `<div class="w-8 h-8 rounded-full flex items-center justify-center bg-blue-600 text-white">
-                <i class="fas fa-user text-sm"></i>
-              </div>`
-            : `<img src="talkaFlow_logo_only.png" alt="TalkaFlow" class="w-8 h-8 rounded-full object-cover" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" />
-               <div class="w-8 h-8 rounded-full bg-gray-600 text-white items-center justify-center" style="display:none;">
-                <i class="fas fa-robot text-sm"></i>
-              </div>`
-          }
-        </div>
-        <div class="flex-1">
-          <div class="font-medium text-sm ${speaker === 'user' ? 'text-blue-900' : 'text-gray-900'} mb-1">
-            ${speaker === 'user' ? 'You' : (agentConfig ? agentConfig.name : 'AI Assistant')}
-          </div>
-          <p class="text-gray-700">${text}</p>
-        </div>
-      `;
-
-      conversation.appendChild(messageDiv);
       conversation.scrollTop = conversation.scrollHeight;
     }
 
@@ -427,12 +443,16 @@
           const transcripts = session.transcripts;
           if (transcripts && transcripts.length > 0) {
             const latest = transcripts[transcripts.length - 1];
-            log(`Transcript: [${latest.speaker}] "${latest.text}" (final: ${latest.isFinal})`);
+
+            // Only log final transcripts to reduce debug noise
+            if (latest.isFinal) {
+              log(`Transcript: [${latest.speaker}] "${latest.text}" (final: ${latest.isFinal})`);
+            }
 
             // Determine speaker
             const speaker = latest.speaker === 'user' ? 'user' : 'agent';
 
-            // Update or create message
+            // Show all transcripts in real-time (both interim and final)
             addOrUpdateMessage(speaker, latest.text, latest.isFinal);
           }
         });
