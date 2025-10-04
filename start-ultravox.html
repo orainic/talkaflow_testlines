@@ -237,11 +237,12 @@
       const timeStr = timestamp.toLocaleTimeString();
       messageDiv.innerHTML = `
         <div class="flex-shrink-0">
-          <div class="w-8 h-8 rounded-full flex items-center justify-center ${
-            speaker === 'user' ? 'bg-blue-600 text-white' : 'bg-gray-600 text-white'
-          }">
-            <i class="fas ${speaker === 'user' ? 'fa-user' : 'fa-robot'} text-sm"></i>
-          </div>
+          ${speaker === 'user'
+            ? `<div class="w-8 h-8 rounded-full flex items-center justify-center bg-blue-600 text-white">
+                <i class="fas fa-user text-sm"></i>
+              </div>`
+            : `<img src="/talkaFlow_logo_only.png" alt="TalkaFlow" class="w-8 h-8 rounded-full object-cover" />`
+          }
         </div>
         <div class="flex-1 min-w-0">
           <div class="flex items-center justify-between mb-1">
