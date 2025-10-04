@@ -1,0 +1,17 @@
+{
+  "name": "ultravox-voice-ai",
+  "version": "1.0.0",
+  "description": "Ultravox Voice AI Integration for Hotel Services",
+  "main": "index.html",
+  "scripts": {
+    "build": "echo 'Build complete'",
+    "start": "python -m http.server 8080"
+  },
+  "dependencies": {
+    "ultravox-client": "^0.4.1"
+  },
+  "devDependencies": {},
+  "keywords": ["ultravox", "voice-ai", "hotel", "customer-service"],
+  "author": "Your Name",
+  "license": "MIT"
+}

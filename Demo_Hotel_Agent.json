@@ -1,0 +1,202 @@
+{
+  "name": "Demo_Hotel_Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "demo_hotel_agent",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        256,
+        208
+      ],
+      "id": "085de3d9-4ac6-4ae6-afde-eef030e5e30d",
+      "name": "Webhook",
+      "webhookId": "7525c9d0-0c53-4832-b9e3-12625a189d8b"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.ultravox.ai/api/agents/f6dd7bbb-ae88-4ebc-addf-d0a2203f9555/calls",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {}
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"medium\": { \"twilio\": {} }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        528,
+        208
+      ],
+      "id": "bd5a6db8-2f34-450c-bf11-4ba86e1bbc1c",
+      "name": "HTTP Request",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "YDZsHjnYNe6q0nk7",
+          "name": "Ultravox"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Prepare TwiML response for Twilio\nconst joinUrl      = $input.first().json.joinUrl\nconst callSid      = $('Webhook').first().json.body.CallSid\nconst callerNumber = $('Webhook').first().json.body.Caller\n\n// Check if we have a valid joinUrl\nif (joinUrl && joinUrl.length > 0) {\n  // Create TwiML with Ultravox connection\n  const twiml = `<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<Response>\n  <Connect>\n    <Stream url=\"${joinUrl}\">\n      <Parameter name=\"customerId\" value=\"${callerNumber}\"/>\n      <Parameter name=\"callSid\"  value=\"${callSid}\"/>\n    </Stream>\n  </Connect>\n</Response>`;\n\n  return {\n    json: {\n      twiml\n    }\n  };\n} else {\n  // Fallback TwiML if no joinUrl available\n  const twiml = `<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<Response>\n  <Say>We're sorry, but our voice assistant is unavailable at the\n  moment. Please try again later.</Say>\n</Response>`;\n\n  return {\n    json: {\n      twiml\n    }\n  };\n}\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        752,
+        208
+      ],
+      "id": "f929e1b3-7b33-487c-bdbb-06b0374a8736",
+      "name": "Prepare Response"
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "={{ $node[\"Prepare Response\"].json.twiml }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "text/xml; charset=UTF-8"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        976,
+        208
+      ],
+      "id": "e8a331df-e527-4631-b94b-4031368f032f",
+      "name": "Respond to Webhook1"
+    }
+  ],
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "headers": {
+            "host": "orainic.app.n8n.cloud",
+            "user-agent": "TwilioProxy/1.1",
+            "content-length": "834",
+            "accept": "*/*",
+            "accept-encoding": "gzip, br",
+            "cdn-loop": "cloudflare; loops=1; subreqs=1",
+            "cf-connecting-ip": "54.175.109.197",
+            "cf-ew-via": "15",
+            "cf-ipcountry": "US",
+            "cf-ray": "9721b788c4df07cf-IAD",
+            "cf-visitor": "{\"scheme\":\"https\"}",
+            "cf-worker": "n8n.cloud",
+            "content-type": "application/x-www-form-urlencoded; charset=UTF-8",
+            "i-twilio-idempotency-token": "45c5c1ac-a62d-461a-827e-32c043e1f12f",
+            "x-forwarded-for": "54.175.109.197, 172.70.43.175",
+            "x-forwarded-host": "orainic.app.n8n.cloud",
+            "x-forwarded-port": "443",
+            "x-forwarded-proto": "https",
+            "x-forwarded-server": "traefik-prod-users-gwc-62-5647b57999-7ng4n",
+            "x-home-region": "us1",
+            "x-is-trusted": "yes",
+            "x-real-ip": "54.175.109.197",
+            "x-twilio-service-flow-event": "%7B%22flow_id%22%3A%22RQ9b843d4c09ef54e46c86faad1bbf55d4%22%2C%22type%22%3A%22api_event%22%2C%22action%22%3A%22twiml_fetch%22%2C%22sub_action%22%3A%22completed%22%2C%22result%22%3A%22success%22%2C%22metadata%22%3A%7B%22transfer_type%22%3A%22call_transfer_url%22%7D%7D",
+            "x-twilio-signature": "LHLceoEgVXNJ9XUIcLOQsY7br2E="
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "Called": "+61361609999",
+            "ToState": "South East Australia",
+            "CallerCountry": "AU",
+            "Direction": "inbound",
+            "CallerState": "",
+            "ToZip": "",
+            "CallSid": "CA73e85c9fd01b47354e54ac5bdc7498ea",
+            "To": "+61361609999",
+            "CallerZip": "",
+            "ToCountry": "AU",
+            "CallToken": "%7B%22parentCallInfoToken%22%3A%22eyJhbGciOiJFUzI1NiJ9.eyJjYWxsU2lkIjoiQ0E3M2U4NWM5ZmQwMWI0NzM1NGU1NGFjNWJkYzc0OThlYSIsImZyb20iOiIrNjE0MjI5MjI1ODgiLCJ0byI6Iis2MTM2MTYwOTk5OSIsImlhdCI6IjE3NTU2OTEwODYifQ.jCdxYb03EwdBQshO5nYtirR9iGUW5Nc5MlQgftdx02_gcLVZIQXrKdRkcbUZO_vc7jPikjui6rlWcgOPCQCeiA%22%2C%22identityHeaderTokens%22%3A%5B%5D%7D",
+            "CalledZip": "",
+            "ApiVersion": "2010-04-01",
+            "CalledCity": "",
+            "CallStatus": "ringing",
+            "From": "+61422922588",
+            "AccountSid": "REDACTED",
+            "CalledCountry": "AU",
+            "CallerCity": "",
+            "ToCity": "",
+            "FromCountry": "AU",
+            "Caller": "+61422922588",
+            "FromCity": "",
+            "CalledState": "South East Australia",
+            "FromZip": "",
+            "FromState": ""
+          },
+          "webhookUrl": "https://orainic.app.n8n.cloud/webhook/demo_hotel_agent",
+          "executionMode": "production"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Prepare Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Response": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "d3b397f1-a352-40a8-a8bf-84fa9edc5ea2",
+  "meta": {
+    "instanceId": "103081d373997b7ee460f88dc127c97aa0ffb58ca86a5dce5a823011669aa9bd"
+  },
+  "id": "SFiSQM2jcJnCKn0n",
+  "tags": []
+}
