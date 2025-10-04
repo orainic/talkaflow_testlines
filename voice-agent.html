@@ -419,6 +419,52 @@
       }
     });
 
+    // Auto-cleanup when page is closed or navigated away
+    window.addEventListener('beforeunload', (event) => {
+      if (session && isConnected) {
+        log('Page closing - ending call automatically');
+        // End call immediately without waiting
+        if (session) {
+          try {
+            session.leaveCall();
+          } catch (e) {
+            console.error('Error leaving call:', e);
+          }
+        }
+        if (audioStream) {
+          audioStream.getTracks().forEach(track => track.stop());
+        }
+      }
+    });
+
+    // Also handle page visibility changes (tab switching, minimizing)
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden && session && isConnected) {
+        log('Page hidden - user may have closed tab/window');
+        // Give a grace period, then end call if still hidden
+        setTimeout(() => {
+          if (document.hidden && session && isConnected) {
+            log('Page still hidden after 2s - ending call to save costs');
+            endCall();
+          }
+        }, 2000);
+      }
+    });
+
+    // Handle page unload (when navigating to another page)
+    window.addEventListener('pagehide', () => {
+      if (session && isConnected) {
+        log('Page unloading - ending call');
+        if (session) {
+          try {
+            session.leaveCall();
+          } catch (e) {
+            console.error('Error leaving call:', e);
+          }
+        }
+      }
+    });
+
     // Initialize
     document.addEventListener('DOMContentLoaded', async () => {
       log('TalkaFlow Voice AI Interface loaded');
