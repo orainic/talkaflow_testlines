@@ -86,9 +86,22 @@ Test each voice agent by clicking the links below:
 
 ---
 
+### 7. 🦷 Dental Specialists
+**URL:** https://talkaflow-testlines.vercel.app/dental
+
+**Agent:** Dental Specialists
+**Use Case:** Dental appointment booking, emergency dental care
+**Try Saying:**
+- "I'd like to book a dental appointment"
+- "I have a toothache"
+- "I need a dental checkup"
+- "Do you offer emergency appointments?"
+
+---
+
 ## ✅ What's Working
 
-- ✅ **6 Different Voice Agents** - Each with unique configurations
+- ✅ **7 Different Voice Agents** - Each with unique configurations
 - ✅ **Clean URLs** - Easy to share and embed (`/hotel`, `/clinic`, etc.)
 - ✅ **Real-time Voice Conversations** - Powered by Ultravox SDK
 - ✅ **TalkaFlow Branding** - Logo and custom styling

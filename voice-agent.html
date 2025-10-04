@@ -142,7 +142,7 @@
 
       // Then check path (e.g., /hotel, /clinic)
       const path = window.location.pathname;
-      const pathMatch = path.match(/\/(hotel|clinic|aftersales|restaurant|hairstudio|hepa)/);
+      const pathMatch = path.match(/\/(hotel|clinic|aftersales|restaurant|hairstudio|hepa|dental)/);
       if (pathMatch) return pathMatch[1];
 
       // Default to hotel

@@ -34,6 +34,11 @@ Each agent has a dedicated URL for easy embedding in your Wix website:
 - **Agent**: HEPA Maintenance
 - **Use Case**: Technical support, maintenance scheduling
 
+### 7. Dental Specialists
+- **URL**: https://talkaflow-testlines.vercel.app/dental
+- **Agent**: Dental Specialists
+- **Use Case**: Dental appointment booking, emergency dental care
+
 ## How to Embed in Wix
 
 ### Option 1: Pop-up Lightbox (Recommended)

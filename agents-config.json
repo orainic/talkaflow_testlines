@@ -88,5 +88,20 @@
       "How often should filters be changed?",
       "I have an urgent repair needed"
     ]
+  },
+  "dental": {
+    "id": "3ab8607f-46b6-4b46-b069-f7fe61d95c5b",
+    "name": "Dental Specialists",
+    "title": "Dental Appointment Booking",
+    "description": "Book appointments with our dental specialists",
+    "icon": "fa-tooth",
+    "suggestions": [
+      "I'd like to book a dental appointment",
+      "I have a toothache",
+      "I need a dental checkup",
+      "What are your opening hours?",
+      "Do you offer emergency appointments?",
+      "I need a teeth cleaning"
+    ]
   }
 }
