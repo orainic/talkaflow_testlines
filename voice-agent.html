@@ -395,13 +395,28 @@
         });
 
         session.addEventListener('disconnect', (event) => {
-          log(`🔌 Session disconnected: ${JSON.stringify(event)}`, 'error');
+          const disconnectTime = new Date().toLocaleTimeString();
+          log(`🔌 Session disconnected at ${disconnectTime}`, 'error');
+          log(`Disconnect details: ${JSON.stringify(event)}`, 'error');
+
+          // Log call duration
+          if (lastActivityTime) {
+            const callDuration = Math.floor((Date.now() - lastActivityTime) / 1000);
+            log(`Call duration: ${callDuration} seconds`, 'error');
+          }
+
           console.warn('Ultravox session disconnected:', event);
           updateStatus('disconnected');
 
-          // Show alert to user about unexpected disconnect
+          // Provide specific feedback based on when disconnect happened
           if (isConnected) {
-            alert('Call disconnected unexpectedly. Please check your internet connection and try again.');
+            const wasShort = lastActivityTime && (Date.now() - lastActivityTime < 10000);
+            if (wasShort) {
+              addMessage('agent', '⚠️ Call ended shortly after greeting. This may be due to: (1) No microphone input detected, (2) Agent timeout, or (3) Network issue. Please ensure your microphone is working and try again.');
+              log('⚠️ Short call detected - likely microphone or agent timeout issue', 'error');
+            } else {
+              addMessage('agent', '⚠️ Call disconnected unexpectedly. Please check your internet connection and microphone permissions.');
+            }
           }
         });
 
@@ -422,6 +437,34 @@
         session.addEventListener('transcripts', () => {
           lastActivityTime = Date.now();
         });
+
+        // Request microphone permission explicitly before joining
+        log('Requesting microphone permission...');
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+          log('✅ Microphone permission granted', 'success');
+
+          // Test if we're getting audio input
+          const audioContext = new AudioContext();
+          const source = audioContext.createMediaStreamSource(stream);
+          const analyser = audioContext.createAnalyser();
+          source.connect(analyser);
+
+          const dataArray = new Uint8Array(analyser.frequencyBinCount);
+          analyser.getByteFrequencyData(dataArray);
+          const average = dataArray.reduce((a, b) => a + b) / dataArray.length;
+
+          if (average > 0) {
+            log(`✅ Microphone is active (level: ${Math.floor(average)})`, 'success');
+          } else {
+            log('⚠️ Microphone permission granted but no audio detected - please check your mic is not muted', 'error');
+          }
+
+          audioStream = stream;
+        } catch (micError) {
+          log(`❌ Microphone permission denied: ${micError.message}`, 'error');
+          throw new Error('Microphone access required for voice calls. Please allow microphone access and try again.');
+        }
 
         // Join call
         log('Joining call with Ultravox...');
