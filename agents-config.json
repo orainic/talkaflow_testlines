@@ -30,7 +30,7 @@
     ]
   },
   "aftersales": {
-    "id": "32605cc1-70a5-4900-97ad-5c866efc07cf",
+    "id": "d92f1c3b-1ee3-4ff5-86c9-ebe18b5b3bcd",
     "name": "Powerbay Support",
     "title": "After-Sales Support",
     "description": "Customer support for product assistance",
@@ -75,7 +75,7 @@
     ]
   },
   "hepa": {
-    "id": "d92f1c3b-1ee3-4ff5-86c9-ebe18b5b3bcd",
+    "id": "32605cc1-70a5-4900-97ad-5c866efc07cf",
     "name": "HEPA Maintenance",
     "title": "HEPA Maintenance Support",
     "description": "Technical support for HEPA systems",
