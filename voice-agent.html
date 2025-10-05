@@ -196,9 +196,19 @@
             <i class="fas fa-cog mr-2"></i>
             Technical Information
           </h3>
-          <button id="debugClose" class="text-gray-400 hover:text-gray-600">
-            <i class="fas fa-times"></i>
-          </button>
+          <div class="flex items-center space-x-2">
+            <button id="downloadLogsBtn" class="text-xs px-3 py-1 rounded text-white transition-all" style="background-color: #116dff;" onmouseover="this.style.backgroundColor='#0d5cd6'" onmouseout="this.style.backgroundColor='#116dff'" title="Download all logs as file">
+              <i class="fas fa-download mr-1"></i>
+              Download Logs
+            </button>
+            <button id="clearLogsBtn" class="text-xs px-3 py-1 rounded text-white transition-all" style="background-color: #df3131;" onmouseover="this.style.backgroundColor='#b92828'" onmouseout="this.style.backgroundColor='#df3131'" title="Clear all saved logs">
+              <i class="fas fa-trash mr-1"></i>
+              Clear Logs
+            </button>
+            <button id="debugClose" class="text-gray-400 hover:text-gray-600">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
         </div>
         <div id="debugInfo" class="p-4 text-xs font-mono text-gray-600 overflow-y-auto flex-1">
           <p>Loading system...</p>
@@ -302,10 +312,78 @@
     let transcriptMap = new Map(); // Track messages by speaker-specific IDs
     let logHistory = [];
     let errorCount = 0;
+    let currentSessionId = null;
+    let callStartTime = null;
+
+    // Call Logging System with localStorage persistence
+    function saveLogToStorage(logEntry) {
+      try {
+        // Get existing logs
+        const storedLogs = localStorage.getItem('talkaflow_call_logs');
+        let logs = storedLogs ? JSON.parse(storedLogs) : [];
+
+        // Add new log entry
+        logs.push(logEntry);
+
+        // Keep only last 500 log entries to prevent storage overflow
+        if (logs.length > 500) {
+          logs = logs.slice(-500);
+        }
+
+        // Save back to localStorage
+        localStorage.setItem('talkaflow_call_logs', JSON.stringify(logs));
+      } catch (error) {
+        console.error('Failed to save log to storage:', error);
+      }
+    }
+
+    function getStoredLogs() {
+      try {
+        const storedLogs = localStorage.getItem('talkaflow_call_logs');
+        return storedLogs ? JSON.parse(storedLogs) : [];
+      } catch (error) {
+        console.error('Failed to read logs from storage:', error);
+        return [];
+      }
+    }
+
+    function clearStoredLogs() {
+      try {
+        localStorage.removeItem('talkaflow_call_logs');
+        console.log('All call logs cleared from storage');
+      } catch (error) {
+        console.error('Failed to clear logs:', error);
+      }
+    }
+
+    function downloadLogs() {
+      try {
+        const logs = getStoredLogs();
+        const logText = logs.map(entry => {
+          return `[${entry.fullTimestamp}] [Session: ${entry.sessionId || 'N/A'}] [${entry.type.toUpperCase()}] ${entry.message}`;
+        }).join('\n');
+
+        const blob = new Blob([logText], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `talkaflow_logs_${new Date().toISOString().replace(/:/g, '-')}.txt`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        log('Logs downloaded successfully', 'success');
+      } catch (error) {
+        log(`Failed to download logs: ${error.message}`, 'error');
+      }
+    }
 
     // Logging
     function log(message, type = 'info') {
-      const timestamp = new Date().toLocaleTimeString();
+      const now = new Date();
+      const timestamp = now.toLocaleTimeString();
+      const fullTimestamp = now.toISOString();
       const icon = type === 'error' ? '❌' : type === 'success' ? '✅' : 'ℹ️';
 
       const div = document.createElement('div');
@@ -316,9 +394,25 @@
       debugInfo.scrollTop = debugInfo.scrollHeight;
       console.log(`[${timestamp}] ${message}`);
 
+      // Create log entry for storage
+      const logEntry = {
+        timestamp,
+        fullTimestamp,
+        message,
+        type,
+        icon,
+        sessionId: currentSessionId,
+        agentType: agentType,
+        browser: navigator.userAgent,
+        online: navigator.onLine
+      };
+
       // Track in history
-      logHistory.push({ timestamp, message, type, icon });
-      if (logHistory.length > 50) logHistory.shift(); // Keep last 50 logs
+      logHistory.push(logEntry);
+      if (logHistory.length > 50) logHistory.shift(); // Keep last 50 logs in memory
+
+      // Save to localStorage
+      saveLogToStorage(logEntry);
 
       // Update error count
       if (type === 'error') {
@@ -495,6 +589,13 @@
     // Start call
     async function startCall() {
       try {
+        // Generate unique session ID for this call
+        currentSessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        callStartTime = new Date();
+
+        log('=== NEW CALL SESSION STARTED ===', 'info');
+        log(`Session ID: ${currentSessionId}`, 'info');
+        log(`Agent: ${agentConfig.name} (${agentConfig.id})`, 'info');
         log('Starting voice call...');
         updateStatus('connecting');
 
@@ -545,22 +646,34 @@
         });
 
         session.addEventListener('disconnect', (event) => {
-          const disconnectTime = new Date().toLocaleTimeString();
-          log(`🔌 Session disconnected at ${disconnectTime}`, 'error');
-          log(`Disconnect details: ${JSON.stringify(event)}`, 'error');
+          const disconnectTime = new Date();
+          log('=== CALL DISCONNECTED ===', 'error');
+          log(`Disconnect time: ${disconnectTime.toISOString()}`, 'error');
+          log(`Session ID: ${currentSessionId}`, 'error');
 
           // Log call duration
-          if (lastActivityTime) {
-            const callDuration = Math.floor((Date.now() - lastActivityTime) / 1000);
-            log(`Call duration: ${callDuration} seconds`, 'error');
+          if (callStartTime) {
+            const callDuration = Math.floor((disconnectTime - callStartTime) / 1000);
+            log(`Total call duration: ${callDuration} seconds`, 'error');
           }
+
+          // Log disconnect event details
+          if (event && event.detail) {
+            log(`Disconnect reason: ${JSON.stringify(event.detail)}`, 'error');
+          } else if (event) {
+            log(`Disconnect event: ${JSON.stringify(event)}`, 'error');
+          }
+
+          // Log network status at disconnect
+          log(`Network online: ${navigator.onLine}`, 'error');
+          log(`Connection type: ${navigator.connection?.effectiveType || 'Unknown'}`, 'error');
 
           console.warn('Ultravox session disconnected:', event);
           updateStatus('disconnected');
 
           // Provide specific feedback based on when disconnect happened
           if (isConnected) {
-            const wasShort = lastActivityTime && (Date.now() - lastActivityTime < 10000);
+            const wasShort = callStartTime && (Date.now() - callStartTime < 10000);
             if (wasShort) {
               addMessage('agent', '⚠️ Call ended shortly after greeting. This may be due to: (1) No microphone input detected, (2) Agent timeout, or (3) Network issue. Please ensure your microphone is working and try again.');
               log('⚠️ Short call detected - likely microphone or agent timeout issue', 'error');
@@ -626,8 +739,16 @@
         lastActivityTime = Date.now();
 
       } catch (error) {
-        log(`Call failed: ${error.message}`, 'error');
+        log('=== CALL FAILED TO START ===', 'error');
+        log(`Error: ${error.message}`, 'error');
+        log(`Error stack: ${error.stack}`, 'error');
+        log(`Session ID: ${currentSessionId}`, 'error');
         updateStatus('disconnected');
+
+        // Clear session tracking on failure
+        currentSessionId = null;
+        callStartTime = null;
+
         alert(`Failed to start call: ${error.message}`);
       }
     }
@@ -635,7 +756,15 @@
     // End call
     async function endCall() {
       try {
+        log('=== USER ENDED CALL ===', 'info');
         log('Ending call...');
+
+        // Log call duration
+        if (callStartTime) {
+          const endTime = new Date();
+          const callDuration = Math.floor((endTime - callStartTime) / 1000);
+          log(`Call duration: ${callDuration} seconds`, 'info');
+        }
 
         if (session) {
           await session.leaveCall();
@@ -648,9 +777,14 @@
         }
 
         updateStatus('disconnected');
-        log('Call ended', 'success');
+        log(`Call ended successfully`, 'success');
+        log(`Session ID: ${currentSessionId}`, 'info');
 
         addMessage('agent', `Thank you for contacting ${agentConfig.name}. Have a wonderful day!`);
+
+        // Clear session ID
+        currentSessionId = null;
+        callStartTime = null;
 
       } catch (error) {
         log(`Error ending call: ${error.message}`, 'error');
@@ -697,6 +831,21 @@
       if (e.target === debugModal) {
         debugModal.classList.add('hidden');
         debugModal.classList.remove('flex');
+      }
+    });
+
+    // Download logs button
+    const downloadLogsBtn = document.getElementById('downloadLogsBtn');
+    downloadLogsBtn.addEventListener('click', () => {
+      downloadLogs();
+    });
+
+    // Clear logs button
+    const clearLogsBtn = document.getElementById('clearLogsBtn');
+    clearLogsBtn.addEventListener('click', () => {
+      if (confirm('Are you sure you want to clear all saved call logs? This cannot be undone.')) {
+        clearStoredLogs();
+        log('All logs cleared from storage', 'success');
       }
     });
 
@@ -781,6 +930,16 @@
       log(`Online: ${navigator.onLine ? 'Yes' : 'No'}`);
       log(`Connection: ${navigator.connection?.effectiveType || 'Unknown'}`);
       log(`Agent Type: ${agentType}`);
+
+      // Log stored logs information
+      const storedLogs = getStoredLogs();
+      log(`Stored logs: ${storedLogs.length} entries in localStorage`);
+      if (storedLogs.length > 0) {
+        const oldestLog = storedLogs[0];
+        const newestLog = storedLogs[storedLogs.length - 1];
+        log(`Oldest log: ${oldestLog.fullTimestamp}`);
+        log(`Newest log: ${newestLog.fullTimestamp}`);
+      }
 
       updateStatus('disconnected');
 
