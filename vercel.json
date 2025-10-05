@@ -11,8 +11,20 @@
       "destination": "/voice-agent.html"
     },
     {
+      "source": "/logs",
+      "destination": "/view-logs.html"
+    },
+    {
       "source": "/api/ultravox",
       "destination": "/api/ultravox.js"
+    },
+    {
+      "source": "/api/submit-log",
+      "destination": "/api/submit-log.js"
+    },
+    {
+      "source": "/api/logs",
+      "destination": "/api/logs.js"
     }
   ],
   "headers": [

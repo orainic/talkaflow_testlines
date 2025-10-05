@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TalkaFlow - Call Logs Viewer</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="icon" type="image/png" href="/talkaFlow_logo_only.png">
+  <style>
+    .log-entry { transition: background-color 0.2s; }
+    .log-entry:hover { background-color: rgba(17, 109, 255, 0.05); }
+    .log-error { border-left: 4px solid #df3131; }
+    .log-success { border-left: 4px solid #008250; }
+    .log-info { border-left: 4px solid #116dff; }
+  </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+  <!-- Header -->
+  <div class="bg-white shadow-sm border-b">
+    <div class="max-w-7xl mx-auto px-4 py-4">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+          <a href="https://www.talkaflow.com">
+            <img src="/talkaFlow_logo_only.png" alt="TalkaFlow" class="w-10 h-10 hover:opacity-80 transition-opacity cursor-pointer" />
+          </a>
+          <div>
+            <h1 class="text-xl font-bold text-gray-900">Call Logs Viewer</h1>
+            <p class="text-sm text-gray-600">Monitor and diagnose call issues</p>
+          </div>
+        </div>
+        <div class="flex items-center space-x-3">
+          <span id="logCount" class="text-sm text-gray-600">Loading...</span>
+          <button id="refreshBtn" class="px-4 py-2 rounded text-white transition-all" style="background-color: #116dff;" onmouseover="this.style.backgroundColor='#0d5cd6'" onmouseout="this.style.backgroundColor='#116dff'">
+            <i class="fas fa-sync-alt mr-2"></i>Refresh
+          </button>
+          <button id="exportBtn" class="px-4 py-2 rounded text-white transition-all" style="background-color: #008250;" onmouseover="this.style.backgroundColor='#006b43'" onmouseout="this.style.backgroundColor='#008250'">
+            <i class="fas fa-download mr-2"></i>Export All
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="max-w-7xl mx-auto px-4 py-8">
+    <!-- Filters -->
+    <div class="bg-white rounded-lg shadow-sm p-4 mb-6">
+      <div class="flex flex-wrap gap-4">
+        <div class="flex-1 min-w-[200px]">
+          <label class="block text-sm font-medium text-gray-700 mb-1">Filter by Session ID</label>
+          <input id="sessionFilter" type="text" placeholder="Enter session ID..." class="w-full px-3 py-2 border rounded focus:outline-none" style="border-color: #116dff;">
+        </div>
+        <div class="flex-1 min-w-[200px]">
+          <label class="block text-sm font-medium text-gray-700 mb-1">Filter by Agent</label>
+          <select id="agentFilter" class="w-full px-3 py-2 border rounded focus:outline-none" style="border-color: #116dff;">
+            <option value="">All Agents</option>
+          </select>
+        </div>
+        <div class="flex-1 min-w-[200px]">
+          <label class="block text-sm font-medium text-gray-700 mb-1">Filter by Type</label>
+          <select id="typeFilter" class="w-full px-3 py-2 border rounded focus:outline-none" style="border-color: #116dff;">
+            <option value="">All Types</option>
+            <option value="error">Errors Only</option>
+            <option value="success">Success Only</option>
+            <option value="info">Info Only</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Storage Status -->
+    <div id="storageStatus" class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6 hidden">
+      <div class="flex">
+        <div class="flex-shrink-0">
+          <i class="fas fa-exclamation-triangle text-yellow-400"></i>
+        </div>
+        <div class="ml-3">
+          <p class="text-sm text-yellow-700" id="storageMessage"></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Logs Display -->
+    <div class="bg-white rounded-lg shadow-lg p-6">
+      <h2 class="text-lg font-semibold text-gray-900 mb-4">
+        <i class="fas fa-list mr-2" style="color: #116dff;"></i>
+        Recent Call Logs
+      </h2>
+      <div id="logsContainer" class="space-y-2 max-h-[600px] overflow-y-auto">
+        <div class="text-center text-gray-500 py-8">
+          <i class="fas fa-spinner fa-spin text-4xl mb-3" style="color: #116dff;"></i>
+          <p>Loading logs...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let allLogs = [];
+    let filteredLogs = [];
+
+    // Load logs from API
+    async function loadLogs() {
+      try {
+        const response = await fetch('/api/logs');
+        const data = await response.json();
+
+        if (data.storage === 'none') {
+          showStorageWarning(data.message, data.setup);
+        }
+
+        allLogs = data.logs || [];
+        document.getElementById('logCount').textContent = `${allLogs.length} logs found`;
+
+        // Populate agent filter
+        const agents = [...new Set(allLogs.map(log => log.agentType).filter(Boolean))];
+        const agentFilter = document.getElementById('agentFilter');
+        agents.forEach(agent => {
+          const option = document.createElement('option');
+          option.value = agent;
+          option.textContent = agent.charAt(0).toUpperCase() + agent.slice(1);
+          agentFilter.appendChild(option);
+        });
+
+        applyFilters();
+      } catch (error) {
+        console.error('Error loading logs:', error);
+        document.getElementById('logsContainer').innerHTML = `
+          <div class="text-center text-red-600 py-8">
+            <i class="fas fa-exclamation-circle text-4xl mb-3"></i>
+            <p>Failed to load logs: ${error.message}</p>
+          </div>
+        `;
+      }
+    }
+
+    function showStorageWarning(message, setup) {
+      const statusDiv = document.getElementById('storageStatus');
+      const messageDiv = document.getElementById('storageMessage');
+      messageDiv.innerHTML = `<strong>Storage Not Configured:</strong> ${message}<br><small>${setup}</small>`;
+      statusDiv.classList.remove('hidden');
+    }
+
+    // Apply filters
+    function applyFilters() {
+      const sessionFilter = document.getElementById('sessionFilter').value.toLowerCase();
+      const agentFilter = document.getElementById('agentFilter').value;
+      const typeFilter = document.getElementById('typeFilter').value;
+
+      filteredLogs = allLogs.filter(log => {
+        const matchesSession = !sessionFilter || (log.sessionId && log.sessionId.toLowerCase().includes(sessionFilter));
+        const matchesAgent = !agentFilter || log.agentType === agentFilter;
+        const matchesType = !typeFilter || log.type === typeFilter;
+        return matchesSession && matchesAgent && matchesType;
+      });
+
+      displayLogs();
+    }
+
+    // Display logs
+    function displayLogs() {
+      const container = document.getElementById('logsContainer');
+
+      if (filteredLogs.length === 0) {
+        container.innerHTML = `
+          <div class="text-center text-gray-500 py-8">
+            <i class="fas fa-inbox text-4xl mb-3"></i>
+            <p>No logs found matching filters</p>
+          </div>
+        `;
+        return;
+      }
+
+      // Group logs by session
+      const sessionGroups = {};
+      filteredLogs.forEach(log => {
+        const sessionId = log.sessionId || 'unknown';
+        if (!sessionGroups[sessionId]) {
+          sessionGroups[sessionId] = [];
+        }
+        sessionGroups[sessionId].push(log);
+      });
+
+      let html = '';
+      Object.keys(sessionGroups).forEach(sessionId => {
+        const logs = sessionGroups[sessionId];
+        const firstLog = logs[0];
+
+        html += `
+          <div class="border rounded-lg p-4 mb-4 log-entry log-${firstLog.type}">
+            <div class="flex justify-between items-start mb-2">
+              <div>
+                <h3 class="font-semibold text-gray-900">
+                  <i class="fas fa-phone mr-2" style="color: #116dff;"></i>
+                  Session: ${sessionId}
+                </h3>
+                <p class="text-sm text-gray-600">
+                  Agent: <strong>${firstLog.agentType || 'Unknown'}</strong> |
+                  Received: ${new Date(firstLog.serverReceivedAt || firstLog.fullTimestamp).toLocaleString()} |
+                  IP: ${firstLog.clientIp || 'Unknown'}
+                </p>
+              </div>
+              <button onclick="toggleSession('${sessionId}')" class="text-sm px-2 py-1 rounded" style="background-color: rgba(17, 109, 255, 0.1); color: #116dff;">
+                <i class="fas fa-chevron-down" id="icon-${sessionId}"></i>
+              </button>
+            </div>
+            <div id="session-${sessionId}" class="hidden mt-3 pl-4 border-l-2 space-y-1" style="border-color: #116dff;">
+              ${logs.map(log => `
+                <div class="text-xs font-mono ${log.type === 'error' ? 'text-red-600' : log.type === 'success' ? 'text-green-600' : 'text-gray-700'}">
+                  <span class="text-gray-400">[${log.timestamp}]</span> ${log.icon} ${log.message}
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      });
+
+      container.innerHTML = html;
+    }
+
+    // Toggle session details
+    window.toggleSession = function(sessionId) {
+      const details = document.getElementById(`session-${sessionId}`);
+      const icon = document.getElementById(`icon-${sessionId}`);
+
+      if (details.classList.contains('hidden')) {
+        details.classList.remove('hidden');
+        icon.className = 'fas fa-chevron-up';
+      } else {
+        details.classList.add('hidden');
+        icon.className = 'fas fa-chevron-down';
+      }
+    };
+
+    // Export logs
+    function exportLogs() {
+      const logText = filteredLogs.map(log => {
+        return `[${log.fullTimestamp || log.timestamp}] [Session: ${log.sessionId}] [${log.type.toUpperCase()}] ${log.message}`;
+      }).join('\n');
+
+      const blob = new Blob([logText], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `talkaflow_logs_export_${new Date().toISOString().replace(/:/g, '-')}.txt`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    // Event listeners
+    document.getElementById('refreshBtn').addEventListener('click', loadLogs);
+    document.getElementById('exportBtn').addEventListener('click', exportLogs);
+    document.getElementById('sessionFilter').addEventListener('input', applyFilters);
+    document.getElementById('agentFilter').addEventListener('change', applyFilters);
+    document.getElementById('typeFilter').addEventListener('change', applyFilters);
+
+    // Auto-refresh every 30 seconds
+    setInterval(loadLogs, 30000);
+
+    // Initial load
+    loadLogs();
+  </script>
+</body>
+</html>

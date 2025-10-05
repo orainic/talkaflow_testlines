@@ -314,6 +314,8 @@
     let errorCount = 0;
     let currentSessionId = null;
     let callStartTime = null;
+    let pendingServerLogs = [];
+    let serverLogTimer = null;
 
     // Call Logging System with localStorage persistence
     function saveLogToStorage(logEntry) {
@@ -379,6 +381,58 @@
       }
     }
 
+    // Send logs to server
+    async function sendLogsToServer(logEntries, immediate = false) {
+      if (!logEntries || logEntries.length === 0) return;
+
+      try {
+        // Send each log entry separately to preserve individual timestamps
+        for (const logEntry of logEntries) {
+          const response = await fetch('/api/submit-log', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(logEntry)
+          });
+
+          if (!response.ok) {
+            console.warn('Failed to send log to server:', response.status);
+          }
+        }
+      } catch (error) {
+        // Silently fail - don't interrupt user experience
+        console.warn('Could not send logs to server:', error.message);
+      }
+    }
+
+    // Queue log for server submission
+    function queueServerLog(logEntry, immediate = false) {
+      pendingServerLogs.push(logEntry);
+
+      // Send immediately for critical events
+      if (immediate) {
+        sendLogsToServer([...pendingServerLogs], true);
+        pendingServerLogs = [];
+        if (serverLogTimer) {
+          clearTimeout(serverLogTimer);
+          serverLogTimer = null;
+        }
+      } else {
+        // Batch send after 5 seconds
+        if (serverLogTimer) {
+          clearTimeout(serverLogTimer);
+        }
+        serverLogTimer = setTimeout(() => {
+          if (pendingServerLogs.length > 0) {
+            sendLogsToServer([...pendingServerLogs]);
+            pendingServerLogs = [];
+          }
+          serverLogTimer = null;
+        }, 5000);
+      }
+    }
+
     // Logging
     function log(message, type = 'info') {
       const now = new Date();
@@ -413,6 +467,13 @@
 
       // Save to localStorage
       saveLogToStorage(logEntry);
+
+      // Send to server - immediate for errors and critical events
+      const isCritical = type === 'error' ||
+                        message.includes('CALL SESSION STARTED') ||
+                        message.includes('CALL DISCONNECTED') ||
+                        message.includes('CALL FAILED');
+      queueServerLog(logEntry, isCritical);
 
       // Update error count
       if (type === 'error') {
@@ -642,7 +703,7 @@
         // Add error and disconnect listeners for diagnostics
         session.addEventListener('error', (event) => {
           log(`⚠️ Session error: ${JSON.stringify(event)}`, 'error');
-          console.error('Ultravox session error:', event);
+          console.error('talkaflow-uvx session error:', event);
         });
 
         session.addEventListener('disconnect', (event) => {
@@ -668,7 +729,7 @@
           log(`Network online: ${navigator.onLine}`, 'error');
           log(`Connection type: ${navigator.connection?.effectiveType || 'Unknown'}`, 'error');
 
-          console.warn('Ultravox session disconnected:', event);
+          console.warn('talkaflow-uvx session disconnected:', event);
           updateStatus('disconnected');
 
           // Provide specific feedback based on when disconnect happened
@@ -733,7 +794,7 @@
         }
 
         // Join call
-        log('Joining call with Ultravox...');
+        log('Joining call with talkaflow-uvx...');
         await session.joinCall(callData.joinUrl);
         log('✅ Voice call connected!', 'success');
         lastActivityTime = Date.now();
@@ -863,6 +924,11 @@
 
     // Auto-cleanup when page is closed or navigated away
     window.addEventListener('beforeunload', (event) => {
+      // Send any pending logs immediately before page closes
+      if (pendingServerLogs.length > 0) {
+        sendLogsToServer([...pendingServerLogs], true);
+      }
+
       if (session && isConnected) {
         log('Page closing - ending call automatically');
         // End call immediately without waiting
