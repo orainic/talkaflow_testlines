@@ -104,10 +104,30 @@ Test each voice agent by clicking the links below:
 - ✅ **7 Different Voice Agents** - Each with unique configurations
 - ✅ **Clean URLs** - Easy to share and embed (`/hotel`, `/clinic`, etc.)
 - ✅ **Real-time Voice Conversations** - Powered by Ultravox SDK
-- ✅ **TalkaFlow Branding** - Logo and custom styling
+- ✅ **TalkaFlow Branding** - Logo, custom color scheme, and styling
+- ✅ **Dark Mode Toggle** - User preference saved in localStorage
+- ✅ **Home Navigation** - Clickable logo and home button linking to talkaflow.com
 - ✅ **User Speech Display** - Shows both user and AI messages
 - ✅ **Serverless API Proxy** - Bypasses CORS restrictions
 - ✅ **Production Deployment** - Hosted on Vercel
+
+## 🎨 UI Features
+
+### TalkaFlow Brand Colors
+- **Primary Blue:** `#116dff` - Main accent color, buttons, icons
+- **Success Green:** `#008250` - Start call button, connected status
+- **Alert Red:** `#df3131` - End call button, error states
+
+### Dark Mode
+- Toggle button in bottom-left corner (moon/sun icon)
+- Automatic preference saving via localStorage
+- Smooth transitions between light and dark themes
+- Optimized contrast for readability
+
+### Navigation
+- **Logo:** Clickable link to https://www.talkaflow.com
+- **Home Button:** Circular icon in header for easy navigation
+- Both open in new tabs for seamless user experience
 
 ## 🔧 Technical Architecture
 
