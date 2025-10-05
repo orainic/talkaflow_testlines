@@ -111,6 +111,8 @@ Test each voice agent by clicking the links below:
 - ✅ **User Speech Display** - Shows both user and AI messages
 - ✅ **Serverless API Proxy** - Bypasses CORS restrictions
 - ✅ **Production Deployment** - Hosted on Vercel
+- ✅ **Server-Side Call Logging** - Automatic log collection for debugging call issues
+- ✅ **Log Viewer Dashboard** - Web-based interface to view and analyze all call logs
 
 ## 🎨 UI Features
 
@@ -135,6 +137,41 @@ Test each voice agent by clicking the links below:
 - **Real-time Updates:** Shows connection state (Disconnected, Connecting, Listening, AI Speaking)
 - **Visual Feedback:** Color-coded status dot with descriptive text
 
+## 📊 Call Logging & Monitoring
+
+### Log Viewer Dashboard
+**URL:** https://talkaflow-testlines.vercel.app/logs
+
+Monitor and diagnose call issues in real-time with our comprehensive logging system:
+
+### Features
+- **Automatic Log Collection** - All client calls automatically send logs to the server
+- **Real-time Monitoring** - View logs as they come in (auto-refresh every 30s)
+- **Session Grouping** - Logs organized by unique session ID for easy tracking
+- **Advanced Filtering:**
+  - Filter by session ID
+  - Filter by agent type (hotel, clinic, restaurant, etc.)
+  - Filter by log type (errors, success, info)
+- **Export Capability** - Download filtered logs as text file for analysis
+- **Client Privacy** - Technology stack hidden (rebranded to "talkaflow-uvx")
+
+### What Gets Logged
+- **Call Events:** Session start, connection, disconnect, duration
+- **Errors:** Connection failures, microphone issues, network problems
+- **Network Info:** Client IP, browser type, connection type
+- **Timestamps:** Server and client timestamps in ISO format
+- **Disconnect Reasons:** Detailed information about why calls dropped
+
+### Storage Options
+1. **Default:** Logs visible in Vercel Function Logs (free)
+2. **Upgrade:** Install `@vercel/kv` for persistent storage with web viewer
+
+### Client-Side Features
+Users can also download their own session logs:
+- Click the debug icon (bug button) in bottom-right
+- Click "Download Logs" to export session data
+- Click "Clear Logs" to reset stored logs
+
 ## 🔧 Technical Architecture
 
 ```
@@ -149,15 +186,31 @@ User Browser → /hotel → voice-agent.html (loads hotel config)
             WebSocket Connection (real-time voice)
                  ↓
             User ↔ AI Voice Conversation
+                 ↓
+        Call Logs → /api/submit-log (serverless logging)
+                 ↓
+        Vercel KV Storage / Function Logs
+                 ↓
+        Admin → /logs → view-logs.html (log viewer dashboard)
 ```
 
 ## 📁 Key Files
 
+### Core Interface
 - **`voice-agent.html`** - Main dynamic voice interface (supports all agents)
 - **`agents-config.json`** - Agent configurations (names, IDs, icons, suggestions)
-- **`api/ultravox.js`** - Serverless API proxy for Ultravox calls
-- **`vercel.json`** - Deployment config with URL routing
 - **`talkaFlow_logo_only.png`** - TalkaFlow branding logo
+
+### API Endpoints
+- **`api/ultravox.js`** - Serverless API proxy for Ultravox calls
+- **`api/submit-log.js`** - Receives and stores call logs from clients
+- **`api/logs.js`** - Retrieves stored logs for viewing
+
+### Logging & Monitoring
+- **`view-logs.html`** - Web-based log viewer dashboard (accessible at `/logs`)
+
+### Configuration
+- **`vercel.json`** - Deployment config with URL routing and CORS
 
 ## 🚀 How to Embed in Your Website
 
@@ -199,11 +252,49 @@ function openVoiceAgent() {
 2. **Update `vercel.json`** - Add new route pattern
 3. **Deploy** - Push to GitHub, Vercel auto-deploys
 
-## 🔐 Security
+## 🔍 Troubleshooting Call Drop-Offs
 
-- API key stored server-side in `api/ultravox.js` (not exposed to clients)
-- CORS properly configured for cross-origin requests
-- Agent IDs are public (safe to expose)
+When clients report that calls are dropping:
+
+1. **Access the Log Viewer:** Go to https://talkaflow-testlines.vercel.app/logs
+2. **Find the Session:**
+   - Ask client when the call happened
+   - Use time-based filtering or search for their session
+   - Each call has a unique session ID
+3. **Analyze the Logs:**
+   - Look for "CALL DISCONNECTED" events
+   - Check call duration (short calls <10s indicate timeout/mic issues)
+   - Review disconnect reasons and network status
+   - Check for error messages before disconnect
+4. **Common Issues:**
+   - **Short calls:** Usually microphone permission or agent timeout
+   - **Network errors:** Check client's connection type and stability
+   - **WebSocket errors:** May indicate firewall or network restrictions
+
+### Enable Persistent Log Storage (Optional)
+
+For better log retention and searchability:
+
+```bash
+# Install Vercel KV
+npm install @vercel/kv
+
+# Configure in Vercel Dashboard:
+# 1. Go to your project → Storage → Create KV Database
+# 2. Link to your project
+# 3. Redeploy
+```
+
+With Vercel KV enabled, logs are stored persistently and accessible via the web viewer.
+
+## 🔐 Security & Privacy
+
+- **API Key Protection:** API key stored server-side in `api/ultravox.js` (not exposed to clients)
+- **CORS Configuration:** Properly configured for cross-origin requests
+- **Public Agent IDs:** Agent IDs are safe to expose (no sensitive data)
+- **Technology Obfuscation:** Underlying technology (Ultravox) rebranded as "talkaflow-uvx" in client-facing logs
+- **Client Privacy:** IP addresses and browser info logged only for debugging purposes
+- **Log Access Control:** Log viewer should be protected (add authentication if needed)
 
 ## 📚 Documentation
 
