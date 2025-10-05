@@ -39,15 +39,27 @@
     <div class="max-w-4xl mx-auto px-4 py-4">
       <div class="flex items-center justify-between">
         <div class="flex items-center space-x-3">
-          <img src="/talkaFlow_logo_only.png" alt="TalkaFlow" class="w-10 h-10" />
+          <a href="https://www.talkaflow.com" target="_blank" rel="noopener noreferrer">
+            <img src="/talkaFlow_logo_only.png" alt="TalkaFlow" class="w-10 h-10 hover:opacity-80 transition-opacity cursor-pointer" />
+          </a>
           <div>
             <h1 id="agentName" class="text-xl font-bold text-gray-900">TalkaFlow Voice AI</h1>
             <p id="agentTitle" class="text-sm text-gray-600">AI Voice Assistant</p>
           </div>
         </div>
-        <div id="connectionStatus" class="flex items-center space-x-2">
-          <div id="statusDot" class="w-3 h-3 rounded-full bg-gray-400"></div>
-          <span id="statusText" class="text-sm font-medium text-gray-600">Disconnected</span>
+        <div class="flex items-center space-x-4">
+          <div id="connectionStatus" class="flex items-center space-x-2">
+            <div id="statusDot" class="w-3 h-3 rounded-full bg-gray-400"></div>
+            <span id="statusText" class="text-sm font-medium text-gray-600">Disconnected</span>
+          </div>
+          <a href="https://www.talkaflow.com" target="_blank" rel="noopener noreferrer"
+             class="w-9 h-9 rounded-full flex items-center justify-center transition-all hover:scale-110"
+             style="background-color: rgba(17, 109, 255, 0.1);"
+             onmouseover="this.style.backgroundColor='rgba(17, 109, 255, 0.2)'"
+             onmouseout="this.style.backgroundColor='rgba(17, 109, 255, 0.1)'"
+             title="Return to TalkaFlow Home">
+            <i class="fas fa-home" style="color: #116dff;"></i>
+          </a>
         </div>
       </div>
     </div>
@@ -57,7 +69,7 @@
     <!-- Main Call Interface -->
     <div class="bg-white rounded-xl shadow-lg p-8 mb-6">
       <div class="text-center mb-8">
-        <div class="inline-flex items-center justify-center w-16 h-16 bg-blue-600 rounded-full mb-4">
+        <div class="inline-flex items-center justify-center w-16 h-16 rounded-full mb-4" style="background-color: #116dff;">
           <i id="agentIcon" class="fas fa-microphone text-white text-2xl"></i>
         </div>
         <h2 id="agentDescription" class="text-2xl font-bold text-gray-900 mb-4">AI Voice Assistant</h2>
@@ -65,7 +77,10 @@
         <!-- Call Button -->
         <div class="space-y-4">
           <button id="callButton"
-                  class="bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white px-12 py-6 rounded-xl font-bold text-xl transition-all transform hover:scale-105 shadow-lg disabled:cursor-not-allowed disabled:transform-none">
+                  class="disabled:bg-gray-400 text-white px-12 py-6 rounded-xl font-bold text-xl transition-all transform hover:scale-105 shadow-lg disabled:cursor-not-allowed disabled:transform-none"
+                  style="background-color: #008250;"
+                  onmouseover="if(!this.disabled) this.style.backgroundColor='#006b43'"
+                  onmouseout="if(!this.disabled && !this.dataset.connected) this.style.backgroundColor='#008250'; else if(!this.disabled && this.dataset.connected) this.style.backgroundColor='#df3131'">
             <i id="callIcon" class="fas fa-phone mr-3"></i>
             <span id="callText">Start Voice Call</span>
           </button>
@@ -77,12 +92,12 @@
       </div>
 
       <!-- What You Can Ask -->
-      <div id="suggestionsContainer" class="bg-blue-50 rounded-lg p-6 mb-6">
-        <h3 class="font-semibold text-blue-900 mb-3">
+      <div id="suggestionsContainer" class="rounded-lg p-6 mb-6" style="background-color: rgba(17, 109, 255, 0.08);">
+        <h3 class="font-semibold mb-3" style="color: #116dff;">
           <i class="fas fa-question-circle mr-2"></i>
           What you can ask:
         </h3>
-        <div id="suggestionsList" class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-blue-800">
+        <div id="suggestionsList" class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm" style="color: #116dff;">
           <!-- Dynamically populated -->
         </div>
       </div>
@@ -108,7 +123,7 @@
       <div id="debugPreview" class="bg-white rounded-lg shadow-xl mb-2 p-3 max-w-xs hidden">
         <div class="flex items-center justify-between mb-2">
           <h4 class="text-xs font-semibold text-gray-700">Recent Logs</h4>
-          <button id="debugExpandBtn" class="text-blue-600 hover:text-blue-800 text-xs">
+          <button id="debugExpandBtn" class="text-xs" style="color: #116dff;" onmouseover="this.style.color='#0d5cd6'" onmouseout="this.style.color='#116dff'">
             <i class="fas fa-expand-alt"></i>
           </button>
         </div>
@@ -118,9 +133,9 @@
       </div>
 
       <!-- Toggle Button -->
-      <button id="debugToggle" class="bg-blue-600 hover:bg-blue-700 text-white w-12 h-12 rounded-full shadow-lg flex items-center justify-center transition-all relative" title="Debug Logs">
+      <button id="debugToggle" class="text-white w-12 h-12 rounded-full shadow-lg flex items-center justify-center transition-all relative" style="background-color: #116dff;" onmouseover="this.style.backgroundColor='#0d5cd6'" onmouseout="this.style.backgroundColor='#116dff'" title="Debug Logs">
         <i class="fas fa-bug text-lg"></i>
-        <span id="debugBadge" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-5 h-5 rounded-full hidden items-center justify-center font-bold">0</span>
+        <span id="debugBadge" class="absolute -top-1 -right-1 text-white text-xs w-5 h-5 rounded-full hidden items-center justify-center font-bold" style="background-color: #df3131;">0</span>
       </button>
     </div>
 
@@ -206,7 +221,7 @@
         const div = document.createElement('div');
         div.className = 'flex items-start';
         div.innerHTML = `
-          <i class="fas fa-comment-dots text-blue-600 mr-2 mt-1 flex-shrink-0"></i>
+          <i class="fas fa-comment-dots mr-2 mt-1 flex-shrink-0" style="color: #116dff;"></i>
           <span>"${suggestion}"</span>
         `;
         suggestionsList.appendChild(div);
@@ -285,14 +300,19 @@
     function updateStatus(status) {
       const statuses = {
         'disconnected': { color: 'bg-gray-400', text: 'Disconnected' },
-        'connecting': { color: 'bg-yellow-500 animate-pulse', text: 'Connecting...' },
-        'connected': { color: 'bg-green-500', text: 'Connected' },
-        'listening': { color: 'bg-blue-500 animate-pulse', text: 'Listening' },
-        'speaking': { color: 'bg-red-500', text: 'AI Speaking' }
+        'connecting': { color: 'animate-pulse', customColor: '#116dff', text: 'Connecting...' },
+        'connected': { color: '', customColor: '#008250', text: 'Connected' },
+        'listening': { color: 'animate-pulse', customColor: '#116dff', text: 'Listening' },
+        'speaking': { color: '', customColor: '#df3131', text: 'AI Speaking' }
       };
 
       const s = statuses[status] || statuses.disconnected;
       statusDot.className = `w-3 h-3 rounded-full ${s.color}`;
+      if (s.customColor) {
+        statusDot.style.backgroundColor = s.customColor;
+      } else {
+        statusDot.style.backgroundColor = '';
+      }
       statusText.textContent = s.text;
 
       isConnected = status !== 'disconnected';
@@ -302,12 +322,20 @@
     // Update call button
     function updateCallButton() {
       if (isConnected) {
-        callButton.className = 'bg-red-600 hover:bg-red-700 text-white px-12 py-6 rounded-xl font-bold text-xl transition-all transform hover:scale-105 shadow-lg';
+        callButton.className = 'disabled:bg-gray-400 text-white px-12 py-6 rounded-xl font-bold text-xl transition-all transform hover:scale-105 shadow-lg disabled:cursor-not-allowed disabled:transform-none';
+        callButton.style.backgroundColor = '#df3131';
+        callButton.dataset.connected = 'true';
+        callButton.onmouseover = function() { if(!this.disabled) this.style.backgroundColor='#b92828'; };
+        callButton.onmouseout = function() { if(!this.disabled) this.style.backgroundColor='#df3131'; };
         callIcon.className = 'fas fa-phone-slash mr-3';
         callText.textContent = 'End Call';
         callButton.disabled = false;
       } else {
-        callButton.className = 'bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white px-12 py-6 rounded-xl font-bold text-xl transition-all transform hover:scale-105 shadow-lg disabled:cursor-not-allowed disabled:transform-none';
+        callButton.className = 'disabled:bg-gray-400 text-white px-12 py-6 rounded-xl font-bold text-xl transition-all transform hover:scale-105 shadow-lg disabled:cursor-not-allowed disabled:transform-none';
+        callButton.style.backgroundColor = '#008250';
+        callButton.dataset.connected = 'false';
+        callButton.onmouseover = function() { if(!this.disabled) this.style.backgroundColor='#006b43'; };
+        callButton.onmouseout = function() { if(!this.disabled) this.style.backgroundColor='#008250'; };
         callIcon.className = 'fas fa-phone mr-3';
         callText.textContent = 'Start Voice Call';
         callButton.disabled = typeof UltravoxSession === 'undefined' || !agentConfig;
@@ -329,14 +357,19 @@
         const messageDiv = document.createElement('div');
         messageDiv.className = `flex items-start space-x-3 p-4 rounded-lg ${
           speaker === 'user'
-            ? 'bg-blue-100 border-l-4 border-blue-500 ml-4'
+            ? 'border-l-4 ml-4'
             : 'bg-white border-l-4 border-gray-300 mr-4 shadow-sm'
         }`;
+
+        if (speaker === 'user') {
+          messageDiv.style.backgroundColor = 'rgba(17, 109, 255, 0.1)';
+          messageDiv.style.borderColor = '#116dff';
+        }
 
         messageDiv.innerHTML = `
           <div class="flex-shrink-0">
             ${speaker === 'user'
-              ? `<div class="w-8 h-8 rounded-full flex items-center justify-center bg-blue-600 text-white">
+              ? `<div class="w-8 h-8 rounded-full flex items-center justify-center text-white" style="background-color: #116dff;">
                   <i class="fas fa-user text-sm"></i>
                 </div>`
               : `<img src="talkaFlow_logo_only.png" alt="TalkaFlow" class="w-8 h-8 rounded-full object-cover" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" />
@@ -346,7 +379,7 @@
             }
           </div>
           <div class="flex-1">
-            <div class="font-medium text-sm ${speaker === 'user' ? 'text-blue-900' : 'text-gray-900'} mb-1">
+            <div class="font-medium text-sm mb-1" style="color: ${speaker === 'user' ? '#116dff' : '#212121'}">
               ${speaker === 'user' ? 'You' : (agentConfig ? agentConfig.name : 'AI Assistant')}
             </div>
             <p class="text-gray-700 message-text">${text}</p>
