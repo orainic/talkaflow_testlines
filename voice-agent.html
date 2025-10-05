@@ -81,7 +81,7 @@
     <div class="max-w-4xl mx-auto px-4 py-4">
       <div class="flex items-center justify-between">
         <div class="flex items-center space-x-3">
-          <a href="https://www.talkaflow.com" target="_blank" rel="noopener noreferrer">
+          <a href="https://www.talkaflow.com">
             <img src="/talkaFlow_logo_only.png" alt="TalkaFlow" class="w-10 h-10 hover:opacity-80 transition-opacity cursor-pointer" />
           </a>
           <div>
@@ -89,20 +89,14 @@
             <p id="agentTitle" class="text-sm text-gray-600 dark-mode-text-secondary">AI Voice Assistant</p>
           </div>
         </div>
-        <div class="flex items-center space-x-4">
-          <div id="connectionStatus" class="flex items-center space-x-2">
-            <div id="statusDot" class="w-3 h-3 rounded-full bg-gray-400"></div>
-            <span id="statusText" class="text-sm font-medium text-gray-600 dark-mode-text-secondary">Disconnected</span>
-          </div>
-          <a href="https://www.talkaflow.com" target="_blank" rel="noopener noreferrer"
-             class="w-9 h-9 rounded-full flex items-center justify-center transition-all hover:scale-110"
-             style="background-color: rgba(17, 109, 255, 0.1);"
-             onmouseover="this.style.backgroundColor='rgba(17, 109, 255, 0.2)'"
-             onmouseout="this.style.backgroundColor='rgba(17, 109, 255, 0.1)'"
-             title="Return to TalkaFlow Home">
-            <i class="fas fa-home" style="color: #116dff;"></i>
-          </a>
-        </div>
+        <a href="https://www.talkaflow.com"
+           class="w-9 h-9 rounded-full flex items-center justify-center transition-all hover:scale-110"
+           style="background-color: rgba(17, 109, 255, 0.1);"
+           onmouseover="this.style.backgroundColor='rgba(17, 109, 255, 0.2)'"
+           onmouseout="this.style.backgroundColor='rgba(17, 109, 255, 0.1)'"
+           title="Return to TalkaFlow Home">
+          <i class="fas fa-home" style="color: #116dff;"></i>
+        </a>
       </div>
     </div>
   </div>
@@ -115,6 +109,12 @@
           <i id="agentIcon" class="fas fa-microphone text-white text-2xl"></i>
         </div>
         <h2 id="agentDescription" class="text-2xl font-bold text-gray-900 dark-mode-text mb-4">AI Voice Assistant</h2>
+
+        <!-- Status Indicator -->
+        <div id="connectionStatus" class="flex items-center justify-center space-x-3 mb-6 p-4 rounded-lg" style="background-color: rgba(17, 109, 255, 0.05);">
+          <div id="statusDot" class="w-4 h-4 rounded-full bg-gray-400"></div>
+          <span id="statusText" class="text-lg font-semibold text-gray-700 dark-mode-text">Disconnected</span>
+        </div>
 
         <!-- Call Button -->
         <div class="space-y-4">

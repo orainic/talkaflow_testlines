@@ -106,7 +106,8 @@ Test each voice agent by clicking the links below:
 - ✅ **Real-time Voice Conversations** - Powered by Ultravox SDK
 - ✅ **TalkaFlow Branding** - Logo, custom color scheme, and styling
 - ✅ **Dark Mode Toggle** - User preference saved in localStorage
-- ✅ **Home Navigation** - Clickable logo and home button linking to talkaflow.com
+- ✅ **Home Navigation** - Clickable logo and home button linking to talkaflow.com (same tab navigation)
+- ✅ **Prominent Status Indicator** - Large, visible status display on main screen (Disconnected, Listening, AI Speaking, etc.)
 - ✅ **User Speech Display** - Shows both user and AI messages
 - ✅ **Serverless API Proxy** - Bypasses CORS restrictions
 - ✅ **Production Deployment** - Hosted on Vercel
@@ -127,7 +128,12 @@ Test each voice agent by clicking the links below:
 ### Navigation
 - **Logo:** Clickable link to https://www.talkaflow.com
 - **Home Button:** Circular icon in header for easy navigation
-- Both open in new tabs for seamless user experience
+- Both navigate in the same tab to return to the TalkaFlow homepage
+
+### Status Indicator
+- **Prominent Display:** Moved to main screen for better visibility
+- **Real-time Updates:** Shows connection state (Disconnected, Connecting, Listening, AI Speaking)
+- **Visual Feedback:** Color-coded status dot with descriptive text
 
 ## 🔧 Technical Architecture
 
