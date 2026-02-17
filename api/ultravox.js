@@ -69,11 +69,16 @@ export default async function handler(req, res) {
     // Agent config is nested under callTemplate
     const tpl = agentData.callTemplate || {};
 
-    // Step 2: Replace {{currentDate}} in prompt with current date
+    // Step 2: Prepend current date/time to prompt so agents always know today's date
     let prompt = tpl.systemPrompt || '';
     const now = new Date();
-    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-    const currentDate = now.toLocaleDateString('en-US', options);
+    const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    const timeOptions = { hour: 'numeric', minute: '2-digit', hour12: true };
+    const currentDate = now.toLocaleDateString('en-US', dateOptions);
+    const currentTime = now.toLocaleTimeString('en-US', timeOptions);
+    const datePrefix = `[Current date and time: ${currentDate}, ${currentTime}]\n\n`;
+    prompt = datePrefix + prompt;
+    // Also replace any {{currentDate}} template variable if present
     prompt = prompt.replace('{{currentDate}}', currentDate);
 
     // Step 3: Build call body from agent config with resolved prompt
