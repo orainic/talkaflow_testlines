@@ -7,7 +7,7 @@
       "destination": "/voice-agent.html"
     },
     {
-      "source": "/:agent(hotel|clinic|aftersales|restaurant|hairstudio|hepa|dental)",
+      "source": "/:agent(hotel|clinic|aftersales|restaurant|hairstudio|hepa|dental|littlehotelier)",
       "destination": "/voice-agent.html"
     },
     {

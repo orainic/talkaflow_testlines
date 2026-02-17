@@ -39,6 +39,12 @@ Each agent has a dedicated URL for easy embedding in your Wix website:
 - **Agent**: Dental Specialists
 - **Use Case**: Dental appointment booking, emergency dental care
 
+### 8. Hotel Booking (Little Hotelier)
+- **URL**: https://talkaflow-testlines.vercel.app/littlehotelier
+- **Agent**: Arkana Motel (Little Hotelier)
+- **Use Case**: Room booking, availability checking, property info
+- **Note**: Requires local `web_server.py` + ngrok running for tool endpoints
+
 ## How to Embed in Wix
 
 ### Option 1: Pop-up Lightbox (Recommended)

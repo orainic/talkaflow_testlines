@@ -103,5 +103,20 @@
       "Do you offer emergency appointments?",
       "I need a teeth cleaning"
     ]
+  },
+  "littlehotelier": {
+    "id": "5c8ec392-5d91-4bc9-81b4-e7646f8068e6",
+    "name": "Arkana Motel",
+    "title": "Hotel Booking Assistant",
+    "description": "AI-powered booking assistant for Arkana Motel via Little Hotelier",
+    "icon": "fa-bed",
+    "suggestions": [
+      "I'd like to book a room",
+      "What rooms do you have available?",
+      "Do you have any pet-friendly rooms?",
+      "How much is a queen room?",
+      "I want to check in tomorrow",
+      "Do you have parking available?"
+    ]
   }
 }
