@@ -476,8 +476,6 @@
         let callStartTime = null;
         let pendingServerLogs = [];
         let serverLogTimer = null;
-        let currentMessageElement = null;
-        let currentSpeaker = null;
 
         // ========== Call Logging with localStorage ==========
         function saveLogToStorage(logEntry) {
@@ -624,47 +622,71 @@
         }
 
         // ========== Transcript Rendering ==========
-        function addOrUpdateTranscript(speaker, text, isFinal = false) {
-            const isUser = speaker === 'user';
+        function renderAllTranscripts(allTranscripts) {
+            if (!allTranscripts || allTranscripts.length === 0) return;
 
             // Clear placeholder
             if (transcriptEl.querySelector('.transcript-placeholder')) {
                 transcriptEl.innerHTML = '';
             }
 
-            // If different speaker, create new message block
-            if (speaker !== currentSpeaker) {
-                const div = document.createElement('div');
-                div.className = `transcript-msg ${isUser ? 'user-msg' : 'agent-msg'}`;
-                div.innerHTML = `
-                    <div class="transcript-avatar ${isUser ? 'user-avatar' : 'agent-avatar'}">
-                        <i class="fas ${isUser ? 'fa-user' : 'fa-headset'}"></i>
-                    </div>
-                    <div>
-                        <div class="transcript-speaker ${isUser ? 'user-name' : 'agent-name'}">${isUser ? 'You' : (agentConfig ? agentConfig.name : 'AI')}</div>
-                        <div class="transcript-text msg-text"></div>
-                    </div>`;
-                transcriptEl.appendChild(div);
-                currentMessageElement = div.querySelector('.msg-text');
-                currentSpeaker = speaker;
-            }
+            // Filter to transcripts with text
+            const valid = allTranscripts.filter(t => t && t.text && t.text.trim());
+            if (valid.length === 0) return;
 
-            // Update text in current block
-            if (currentMessageElement) {
-                currentMessageElement.textContent = text;
-            }
+            // Re-render all transcripts from scratch for reliability
+            transcriptEl.innerHTML = '';
+            let prevSpeaker = null;
+            let currentDiv = null;
+            const agentName = agentConfig ? agentConfig.name : 'AI';
 
-            // If final, reset tracking so next message creates new bubble
-            if (isFinal) {
-                currentMessageElement = null;
-                currentSpeaker = null;
-            }
+            valid.forEach(t => {
+                const isUser = t.speaker === 'user';
+                const speaker = isUser ? 'user' : 'agent';
+
+                if (speaker !== prevSpeaker) {
+                    const div = document.createElement('div');
+                    div.className = `transcript-msg ${isUser ? 'user-msg' : 'agent-msg'}`;
+                    div.innerHTML = `
+                        <div class="transcript-avatar ${isUser ? 'user-avatar' : 'agent-avatar'}">
+                            <i class="fas ${isUser ? 'fa-user' : 'fa-headset'}"></i>
+                        </div>
+                        <div>
+                            <div class="transcript-speaker ${isUser ? 'user-name' : 'agent-name'}">${isUser ? 'You' : agentName}</div>
+                            <div class="transcript-text msg-text"></div>
+                        </div>`;
+                    transcriptEl.appendChild(div);
+                    currentDiv = div;
+                    prevSpeaker = speaker;
+                }
+
+                if (currentDiv) {
+                    currentDiv.querySelector('.msg-text').textContent = t.text.trim();
+                }
+            });
 
             transcriptEl.scrollTop = transcriptEl.scrollHeight;
         }
 
         function addMessage(speaker, text) {
-            addOrUpdateTranscript(speaker, text, true);
+            // For system messages (e.g. end-of-call), append directly
+            if (transcriptEl.querySelector('.transcript-placeholder')) {
+                transcriptEl.innerHTML = '';
+            }
+            const isUser = speaker === 'user';
+            const agentName = agentConfig ? agentConfig.name : 'AI';
+            const div = document.createElement('div');
+            div.className = `transcript-msg ${isUser ? 'user-msg' : 'agent-msg'}`;
+            div.innerHTML = `
+                <div class="transcript-avatar ${isUser ? 'user-avatar' : 'agent-avatar'}">
+                    <i class="fas ${isUser ? 'fa-user' : 'fa-headset'}"></i>
+                </div>
+                <div>
+                    <div class="transcript-speaker ${isUser ? 'user-name' : 'agent-name'}">${isUser ? 'You' : agentName}</div>
+                    <div class="transcript-text msg-text">${text}</div>
+                </div>`;
+            transcriptEl.appendChild(div);
+            transcriptEl.scrollTop = transcriptEl.scrollHeight;
         }
 
         // ========== API Call ==========
@@ -772,8 +794,7 @@
                         if (latest.isFinal) {
                             log(`Transcript: [${latest.speaker}] "${latest.text}" (final: ${latest.isFinal})`);
                         }
-                        const speaker = latest.speaker === 'user' ? 'user' : 'agent';
-                        addOrUpdateTranscript(speaker, latest.text, latest.isFinal);
+                        renderAllTranscripts(transcripts);
                     }
                 });
 

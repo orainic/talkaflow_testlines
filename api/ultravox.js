@@ -33,16 +33,69 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Make request to Ultravox API
+    // Step 1: Fetch agent config to get prompt and tools
+    const agentResponse = await fetch(
+      `https://api.ultravox.ai/api/agents/${agentId}`,
+      {
+        method: 'GET',
+        headers: { 'X-API-Key': ULTRAVOX_API_KEY },
+      }
+    );
+
+    if (!agentResponse.ok) {
+      // Fallback: create call directly via agent endpoint (old behavior)
+      const response = await fetch(
+        `https://api.ultravox.ai/api/agents/${agentId}/calls`,
+        {
+          method: 'POST',
+          headers: {
+            'X-API-Key': ULTRAVOX_API_KEY,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ medium: { webRtc: {} } })
+        }
+      );
+      const data = await response.json();
+      if (!response.ok) {
+        res.status(response.status).json({ error: 'Ultravox API error', details: data });
+        return;
+      }
+      res.status(200).json(data);
+      return;
+    }
+
+    const agentData = await agentResponse.json();
+
+    // Step 2: Replace {{currentDate}} in prompt with current date
+    let prompt = agentData.prompt || '';
+    const now = new Date();
+    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    const currentDate = now.toLocaleDateString('en-US', options);
+    prompt = prompt.replace('{{currentDate}}', currentDate);
+
+    // Step 3: Build call body from agent config with resolved prompt
+    const callBody = {
+      systemPrompt: prompt,
+      medium: { webRtc: {} },
+    };
+
+    if (agentData.selectedTools) callBody.selectedTools = agentData.selectedTools;
+    if (agentData.voice) callBody.voice = agentData.voice;
+    if (agentData.model) callBody.model = agentData.model;
+    if (agentData.temperature != null) callBody.temperature = agentData.temperature;
+    if (agentData.firstSpeaker) callBody.firstSpeaker = agentData.firstSpeaker;
+    if (agentData.languageHint) callBody.languageHint = agentData.languageHint;
+
+    // Step 4: Create call with resolved config
     const response = await fetch(
-      `https://api.ultravox.ai/api/agents/${agentId}/calls`,
+      'https://api.ultravox.ai/api/calls',
       {
         method: 'POST',
         headers: {
           'X-API-Key': ULTRAVOX_API_KEY,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ medium: { webRtc: {} } })
+        body: JSON.stringify(callBody)
       }
     );
 
