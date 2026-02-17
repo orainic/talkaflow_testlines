@@ -1,1031 +1,988 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title id="pageTitle">TalkaFlow Voice AI</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="icon" type="image/png" href="/talkaFlow_logo_only.png">
-  <style>
-    /* Dark mode transitions */
-    body, .dark-mode-bg, .dark-mode-card, .dark-mode-header {
-      transition: background-color 0.3s ease, color 0.3s ease;
-    }
-
-    /* Dark mode styles */
-    body.dark-mode {
-      background: linear-gradient(to bottom right, #1a1a2e, #16213e) !important;
-    }
-
-    body.dark-mode .dark-mode-header {
-      background-color: #1e293b;
-      border-bottom-color: #334155;
-    }
-
-    body.dark-mode .dark-mode-card {
-      background-color: #1e293b;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
-    }
-
-    body.dark-mode .dark-mode-text {
-      color: #e2e8f0;
-    }
-
-    body.dark-mode .dark-mode-text-secondary {
-      color: #94a3b8;
-    }
-
-    body.dark-mode .dark-mode-bg-secondary {
-      background-color: #0f172a;
-    }
-
-    body.dark-mode .dark-mode-border {
-      border-color: #334155;
-    }
-
-    body.dark-mode .dark-mode-message-agent {
-      background-color: #2d3748;
-      border-left-color: #4a5568;
-    }
-  </style>
-  <!-- Load SDK from multiple sources -->
-  <script>
-    window.loadSDK = async function() {
-      const sources = [
-        'https://cdn.skypack.dev/ultravox-client@0.4.1',
-        'https://unpkg.com/ultravox-client@0.4.1?module',
-        'https://esm.run/ultravox-client@0.4.1',
-        'https://cdn.jsdelivr.net/npm/ultravox-client@0.4.1/+esm'
-      ];
-
-      for (const src of sources) {
-        try {
-          const module = await import(src);
-          if (module.UltravoxSession) {
-            window.UltravoxSession = module.UltravoxSession;
-            console.log('✅ SDK loaded from:', src);
-            return true;
-          }
-        } catch (e) {
-          console.log('❌ Failed:', src, e.message);
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="pageTitle">TalkaFlow Voice AI</title>
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+    <link rel="stylesheet" href="/static/tokens.css">
+    <link rel="stylesheet" href="/static/base.css">
+    <link rel="stylesheet" href="/static/components.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        (function(){
+            var t = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', t);
+            if (t === 'dark') document.documentElement.classList.add('dark');
+        })();
+    </script>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
         }
-      }
-      return false;
-    };
-  </script>
+
+        .page-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: var(--spacing-3);
+        }
+
+        /* Top bar: logo + toggle */
+        .top-bar {
+            width: 420px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .top-bar .logo-container { height: 28px; }
+
+        /* Theme toggle */
+        .theme-toggle { cursor: pointer; user-select: none; }
+        .theme-track {
+            position: relative; width: 48px; height: 24px; border-radius: 12px;
+            background: var(--palette-slate-300); transition: background-color 0.3s;
+        }
+        [data-theme="dark"] .theme-track { background: var(--palette-indigo-600); }
+        .theme-thumb {
+            width: 20px; height: 20px; border-radius: 50%; background: #fff;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3); position: absolute; top: 2px; left: 2px;
+            transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+        }
+        .theme-icon {
+            position: absolute; top: 50%; transform: translateY(-50%);
+            width: 16px; height: 16px; display: flex; align-items: center;
+            justify-content: center; transition: opacity 0.2s;
+        }
+        .theme-icon-sun { left: 4px; color: #f59e0b; }
+        .theme-icon-moon { right: 4px; color: #a5b4fc; opacity: 0; }
+
+        /* Main frame */
+        .voice-container {
+            width: 420px;
+            height: 85vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            background: var(--bg-card);
+            border: 1px solid var(--border-default);
+            border-radius: var(--radius-2xl);
+            box-shadow: var(--shadow-lg);
+        }
+
+        /* Header */
+        .voice-header {
+            background: linear-gradient(135deg, var(--palette-indigo-600), var(--palette-indigo-800));
+            color: #fff;
+            padding: var(--spacing-4) var(--spacing-5);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-3);
+        }
+
+        .voice-header .header-icon {
+            width: 40px; height: 40px; border-radius: var(--radius-full);
+            background: rgba(255,255,255,0.15);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.1rem; flex-shrink: 0;
+        }
+
+        .voice-header .info h2 { font-size: 1rem; font-weight: 600; margin-bottom: 0; color: #fff; }
+        .voice-header .info p { font-size: 0.75rem; opacity: 0.85; margin-top: 2px; }
+
+        .status-dot-header {
+            width: 8px; height: 8px; background: #4ade80;
+            border-radius: var(--radius-full); display: inline-block; margin-right: 4px;
+        }
+
+        /* Content area */
+        .voice-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: var(--spacing-5);
+            background: var(--bg-page);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: var(--spacing-5);
+        }
+
+        /* Status text */
+        .status-area {
+            text-align: center;
+        }
+        .status-label {
+            font-size: 1.125rem; font-weight: 600; color: var(--text-primary);
+        }
+        .status-sub {
+            font-size: 0.8125rem; color: var(--text-tertiary); margin-top: 2px;
+        }
+
+        /* Call Button */
+        .call-area { text-align: center; }
+
+        .call-btn {
+            width: 80px; height: 80px; border-radius: var(--radius-full);
+            color: #fff; font-size: 1.5rem; box-shadow: var(--shadow-lg);
+            transition: all 0.2s; display: inline-flex;
+            align-items: center; justify-content: center; background: #008250;
+        }
+        .call-btn:hover:not(:disabled) { transform: scale(1.1); }
+        .call-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        .call-btn.active { background: var(--palette-red-500); }
+
+        @keyframes pulse-btn {
+            0% { box-shadow: 0 0 0 0 rgba(0, 130, 80, 0.4); }
+            70% { box-shadow: 0 0 0 15px rgba(0, 130, 80, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(0, 130, 80, 0); }
+        }
+        .call-btn:not(:disabled):not(.active) { animation: pulse-btn 2s ease-in-out infinite; }
+        .call-btn.active { animation: none; }
+
+        .call-label {
+            font-size: 0.875rem; color: var(--text-secondary); margin-top: var(--spacing-2);
+        }
+
+        /* Suggestions */
+        .suggestions {
+            background: var(--primary-light); border-radius: var(--radius-lg);
+            padding: var(--spacing-3) var(--spacing-4);
+            border: 1px solid rgba(99, 102, 241, 0.1); width: 100%;
+        }
+        .suggestions .label {
+            font-size: 0.6875rem; font-weight: 600; color: var(--primary-text);
+            margin-bottom: var(--spacing-1);
+        }
+        .suggestions .label i { margin-right: var(--spacing-1); }
+        .suggestions p {
+            font-size: 0.8125rem; color: var(--primary-text);
+            margin: 2px 0; line-height: 1.5;
+        }
+
+        /* Transcript */
+        .transcript-section {
+            background: var(--bg-card); border-radius: var(--radius-lg);
+            padding: var(--spacing-3) var(--spacing-4);
+            border: 1px solid var(--border-light); width: 100%;
+        }
+        .transcript-title {
+            font-size: 0.6875rem; font-weight: 600; color: var(--text-tertiary);
+            text-transform: uppercase; letter-spacing: 0.05em;
+            margin-bottom: var(--spacing-2);
+        }
+        .transcript-title i { margin-right: var(--spacing-1); }
+
+        .transcript-area {
+            max-height: 220px; overflow-y: auto;
+            display: flex; flex-direction: column; gap: var(--spacing-2);
+        }
+
+        .transcript-placeholder {
+            text-align: center; color: var(--text-tertiary);
+            font-size: 0.8125rem; padding: var(--spacing-3) 0;
+        }
+        .transcript-placeholder i {
+            font-size: 1.25rem; display: block;
+            margin-bottom: var(--spacing-1); opacity: 0.3;
+        }
+
+        .transcript-msg {
+            display: flex; align-items: flex-start; gap: var(--spacing-2);
+            padding: var(--spacing-1) var(--spacing-2); border-radius: var(--radius-md);
+        }
+        .transcript-msg.user-msg { background: var(--primary-light); }
+        .transcript-msg.agent-msg { background: var(--bg-page); border: 1px solid var(--border-light); }
+
+        .transcript-avatar {
+            width: 22px; height: 22px; border-radius: var(--radius-full);
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0; margin-top: 2px;
+        }
+        .transcript-avatar.user-avatar { background: var(--primary-default); }
+        .transcript-avatar.agent-avatar { background: var(--palette-slate-600); }
+        .transcript-avatar i { color: #fff; font-size: 0.5625rem; }
+
+        .transcript-speaker { font-size: 0.6875rem; font-weight: 600; }
+        .transcript-speaker.user-name { color: var(--primary-text); }
+        .transcript-speaker.agent-name { color: var(--text-primary); }
+        .transcript-text { font-size: 0.8125rem; color: var(--text-primary); }
+
+        /* Footer */
+        .nav-links {
+            text-align: center; padding: var(--spacing-2); font-size: 0.75rem;
+            color: var(--text-tertiary); background: var(--bg-card);
+            border-top: 1px solid var(--border-light);
+        }
+        .nav-links a { color: var(--primary-text); margin: 0 var(--spacing-2); }
+
+        .powered-by {
+            text-align: center; padding: var(--spacing-2); font-size: 0.6875rem;
+            color: var(--text-tertiary); background: var(--bg-card);
+        }
+        .powered-by a { color: var(--text-secondary); }
+
+        /* Debug */
+        .debug-panel {
+            background: var(--bg-card); border-radius: var(--radius-lg);
+            padding: var(--spacing-3) var(--spacing-4);
+            border: 1px solid var(--border-light); width: 100%;
+        }
+        .debug-panel h4 {
+            font-size: 0.6875rem; font-weight: 600; color: var(--text-tertiary);
+            margin-bottom: var(--spacing-2); display: flex; align-items: center;
+            justify-content: space-between;
+        }
+        .debug-log {
+            font-size: 0.625rem;
+            font-family: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
+            color: var(--text-secondary); max-height: 120px; overflow-y: auto;
+            display: flex; flex-direction: column; gap: 2px;
+        }
+        .debug-log .log-error { color: var(--palette-red-500); }
+        .debug-log .log-success { color: var(--palette-green-500); }
+
+        .debug-actions {
+            display: flex; gap: var(--spacing-2);
+        }
+        .debug-actions button {
+            font-size: 0.5625rem; padding: 2px 6px; border-radius: var(--radius-sm);
+            color: #fff; font-weight: 500;
+        }
+        .debug-actions .btn-download { background: var(--primary-default); }
+        .debug-actions .btn-download:hover { background: var(--primary-hover); }
+        .debug-actions .btn-clear { background: var(--palette-red-500); }
+        .debug-actions .btn-clear:hover { opacity: 0.85; }
+
+        .hidden { display: none; }
+
+        @media (max-width: 480px) {
+            .top-bar { width: 100%; padding: 0 var(--spacing-4); }
+            .voice-container { width: 100%; height: calc(100vh - 50px); border-radius: 0; }
+        }
+    </style>
+    <script>
+        window.loadSDK = async function() {
+            const sources = [
+                'https://cdn.skypack.dev/ultravox-client@0.4.1',
+                'https://unpkg.com/ultravox-client@0.4.1?module',
+                'https://esm.run/ultravox-client@0.4.1',
+                'https://cdn.jsdelivr.net/npm/ultravox-client@0.4.1/+esm'
+            ];
+            for (const src of sources) {
+                try {
+                    const mod = await import(src);
+                    if (mod.UltravoxSession) {
+                        window.UltravoxSession = mod.UltravoxSession;
+                        console.log('SDK loaded from:', src);
+                        return true;
+                    }
+                } catch (e) { console.log('Failed:', src); }
+            }
+            return false;
+        };
+    </script>
 </head>
-<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
-  <!-- Header with Logo -->
-  <div class="bg-white shadow-sm border-b dark-mode-header">
-    <div class="max-w-4xl mx-auto px-4 py-4">
-      <div class="flex items-center justify-between">
-        <div class="flex items-center space-x-3">
-          <a href="https://www.talkaflow.com">
-            <img src="/talkaFlow_logo_only.png" alt="TalkaFlow" class="w-10 h-10 hover:opacity-80 transition-opacity cursor-pointer" />
-          </a>
-          <div>
-            <h1 id="agentName" class="text-xl font-bold text-gray-900 dark-mode-text">TalkaFlow Voice AI</h1>
-            <p id="agentTitle" class="text-sm text-gray-600 dark-mode-text-secondary">AI Voice Assistant</p>
-          </div>
-        </div>
-        <a href="https://www.talkaflow.com"
-           class="w-9 h-9 rounded-full flex items-center justify-center transition-all hover:scale-110"
-           style="background-color: rgba(17, 109, 255, 0.1);"
-           onmouseover="this.style.backgroundColor='rgba(17, 109, 255, 0.2)'"
-           onmouseout="this.style.backgroundColor='rgba(17, 109, 255, 0.1)'"
-           title="Return to TalkaFlow Home">
-          <i class="fas fa-home" style="color: #116dff;"></i>
-        </a>
-      </div>
-    </div>
-  </div>
-
-  <div class="max-w-4xl mx-auto px-4 py-8">
-    <!-- Main Call Interface -->
-    <div class="bg-white rounded-xl shadow-lg p-8 mb-6 dark-mode-card">
-      <div class="text-center mb-8">
-        <div class="inline-flex items-center justify-center w-16 h-16 rounded-full mb-4" style="background-color: #116dff;">
-          <i id="agentIcon" class="fas fa-microphone text-white text-2xl"></i>
-        </div>
-        <h2 id="agentDescription" class="text-2xl font-bold text-gray-900 dark-mode-text mb-4">AI Voice Assistant</h2>
-
-        <!-- Status Indicator -->
-        <div id="connectionStatus" class="flex items-center justify-center space-x-3 mb-6 p-4 rounded-lg" style="background-color: rgba(17, 109, 255, 0.05);">
-          <div id="statusDot" class="w-4 h-4 rounded-full bg-gray-400"></div>
-          <span id="statusText" class="text-lg font-semibold text-gray-700 dark-mode-text">Disconnected</span>
-        </div>
-
-        <!-- Call Button -->
-        <div class="space-y-4">
-          <button id="callButton"
-                  class="disabled:bg-gray-400 text-white px-12 py-6 rounded-xl font-bold text-xl transition-all transform hover:scale-105 shadow-lg disabled:cursor-not-allowed disabled:transform-none"
-                  style="background-color: #008250;"
-                  onmouseover="if(!this.disabled) this.style.backgroundColor='#006b43'"
-                  onmouseout="if(!this.disabled && !this.dataset.connected) this.style.backgroundColor='#008250'; else if(!this.disabled && this.dataset.connected) this.style.backgroundColor='#df3131'">
-            <i id="callIcon" class="fas fa-phone mr-3"></i>
-            <span id="callText">Start Voice Call</span>
-          </button>
-
-          <p class="text-sm text-gray-600">
-            Click to connect with the AI assistant
-          </p>
-        </div>
-      </div>
-
-      <!-- What You Can Ask -->
-      <div id="suggestionsContainer" class="rounded-lg p-6 mb-6" style="background-color: rgba(17, 109, 255, 0.08);">
-        <h3 class="font-semibold mb-3" style="color: #116dff;">
-          <i class="fas fa-question-circle mr-2"></i>
-          What you can ask:
-        </h3>
-        <div id="suggestionsList" class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm" style="color: #116dff;">
-          <!-- Dynamically populated -->
-        </div>
-      </div>
-
-      <!-- Conversation Area -->
-      <div class="bg-gray-50 rounded-lg p-6 dark-mode-bg-secondary">
-        <h3 class="font-semibold text-gray-900 dark-mode-text mb-4 flex items-center">
-          <i class="fas fa-comments mr-2"></i>
-          Conversation
-        </h3>
-        <div id="conversation" class="space-y-3 max-h-96 overflow-y-auto">
-          <div class="text-center text-gray-500 dark-mode-text-secondary py-8">
-            <i class="fas fa-microphone text-4xl mb-3 opacity-30"></i>
-            <p>Start a call to begin speaking with the AI assistant</p>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Dark Mode Toggle Button -->
-    <div class="fixed bottom-4 left-4 z-40">
-      <button id="darkModeToggle" class="text-white w-12 h-12 rounded-full shadow-lg flex items-center justify-center transition-all" style="background-color: #116dff;" onmouseover="this.style.backgroundColor='#0d5cd6'" onmouseout="this.style.backgroundColor='#116dff'" title="Toggle Dark Mode">
-        <i id="darkModeIcon" class="fas fa-moon text-lg"></i>
-      </button>
-    </div>
-
-    <!-- Debug Panel - Small Icon with Preview -->
-    <div class="fixed bottom-4 right-4 z-40">
-      <!-- Compact Preview (collapsed state) -->
-      <div id="debugPreview" class="bg-white rounded-lg shadow-xl mb-2 p-3 max-w-xs hidden dark-mode-card">
-        <div class="flex items-center justify-between mb-2">
-          <h4 class="text-xs font-semibold text-gray-700 dark-mode-text">Recent Logs</h4>
-          <button id="debugExpandBtn" class="text-xs" style="color: #116dff;" onmouseover="this.style.color='#0d5cd6'" onmouseout="this.style.color='#116dff'">
-            <i class="fas fa-expand-alt"></i>
-          </button>
-        </div>
-        <div id="debugPreviewContent" class="text-xs font-mono text-gray-600 max-h-32 overflow-y-auto space-y-1">
-          <p>Loading...</p>
-        </div>
-      </div>
-
-      <!-- Toggle Button -->
-      <button id="debugToggle" class="text-white w-12 h-12 rounded-full shadow-lg flex items-center justify-center transition-all relative" style="background-color: #116dff;" onmouseover="this.style.backgroundColor='#0d5cd6'" onmouseout="this.style.backgroundColor='#116dff'" title="Debug Logs">
-        <i class="fas fa-bug text-lg"></i>
-        <span id="debugBadge" class="absolute -top-1 -right-1 text-white text-xs w-5 h-5 rounded-full hidden items-center justify-center font-bold" style="background-color: #df3131;">0</span>
-      </button>
-    </div>
-
-    <!-- Debug Panel Modal (Hidden by default) -->
-    <div id="debugModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
-      <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-96 flex flex-col dark-mode-card">
-        <div class="flex items-center justify-between p-4 border-b dark-mode-border">
-          <h3 class="font-medium text-gray-900 dark-mode-text flex items-center">
-            <i class="fas fa-cog mr-2"></i>
-            Technical Information
-          </h3>
-          <div class="flex items-center space-x-2">
-            <button id="downloadLogsBtn" class="text-xs px-3 py-1 rounded text-white transition-all" style="background-color: #116dff;" onmouseover="this.style.backgroundColor='#0d5cd6'" onmouseout="this.style.backgroundColor='#116dff'" title="Download all logs as file">
-              <i class="fas fa-download mr-1"></i>
-              Download Logs
-            </button>
-            <button id="clearLogsBtn" class="text-xs px-3 py-1 rounded text-white transition-all" style="background-color: #df3131;" onmouseover="this.style.backgroundColor='#b92828'" onmouseout="this.style.backgroundColor='#df3131'" title="Clear all saved logs">
-              <i class="fas fa-trash mr-1"></i>
-              Clear Logs
-            </button>
-            <button id="debugClose" class="text-gray-400 hover:text-gray-600">
-              <i class="fas fa-times"></i>
-            </button>
-          </div>
-        </div>
-        <div id="debugInfo" class="p-4 text-xs font-mono text-gray-600 overflow-y-auto flex-1">
-          <p>Loading system...</p>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    // Load agent configuration
-    let agentConfig = null;
-    let agentsData = null;
-
-    // Parse URL to get agent type - check both path and query param
-    function getAgentType() {
-      // First check query parameter
-      const urlParams = new URLSearchParams(window.location.search);
-      const queryAgent = urlParams.get('agent');
-      if (queryAgent) return queryAgent;
-
-      // Then check path (e.g., /hotel, /clinic)
-      const path = window.location.pathname;
-      const pathMatch = path.match(/\/(hotel|clinic|aftersales|restaurant|hairstudio|hepa|dental)/);
-      if (pathMatch) return pathMatch[1];
-
-      // Default to hotel
-      return 'hotel';
-    }
-
-    const agentType = getAgentType();
-
-    // Load agents config
-    fetch('/agents-config.json')
-      .then(res => res.json())
-      .then(data => {
-        agentsData = data;
-        agentConfig = data[agentType];
-
-        if (!agentConfig) {
-          console.error('Unknown agent type:', agentType);
-          agentConfig = data.hotel; // Fallback to hotel
-        }
-
-        // Update page with agent info
-        updateAgentInfo();
-
-        // Enable button if SDK is already loaded
-        updateCallButton();
-      })
-      .catch(err => {
-        console.error('Failed to load agent config:', err);
-      });
-
-    function updateAgentInfo() {
-      if (!agentConfig) return;
-
-      // Update page title and meta
-      document.title = `${agentConfig.name} - TalkaFlow Voice AI`;
-      document.getElementById('pageTitle').textContent = `${agentConfig.name} - TalkaFlow`;
-      document.getElementById('agentName').textContent = agentConfig.name;
-      document.getElementById('agentTitle').textContent = agentConfig.title;
-      document.getElementById('agentDescription').textContent = agentConfig.description;
-      document.getElementById('agentIcon').className = `fas ${agentConfig.icon} text-white text-2xl`;
-
-      // Update suggestions
-      const suggestionsList = document.getElementById('suggestionsList');
-      suggestionsList.innerHTML = '';
-      agentConfig.suggestions.forEach(suggestion => {
-        const div = document.createElement('div');
-        div.className = 'flex items-start';
-        div.innerHTML = `
-          <i class="fas fa-comment-dots mr-2 mt-1 flex-shrink-0" style="color: #116dff;"></i>
-          <span>"${suggestion}"</span>
-        `;
-        suggestionsList.appendChild(div);
-      });
-
-      log(`Agent loaded: ${agentConfig.name} (${agentConfig.id})`);
-    }
-
-    // UI Elements
-    const callButton = document.getElementById('callButton');
-    const callIcon = document.getElementById('callIcon');
-    const callText = document.getElementById('callText');
-    const statusDot = document.getElementById('statusDot');
-    const statusText = document.getElementById('statusText');
-    const conversation = document.getElementById('conversation');
-    const debugInfo = document.getElementById('debugInfo');
-    const debugToggle = document.getElementById('debugToggle');
-    const debugModal = document.getElementById('debugModal');
-    const debugClose = document.getElementById('debugClose');
-    const debugPreview = document.getElementById('debugPreview');
-    const debugPreviewContent = document.getElementById('debugPreviewContent');
-    const debugBadge = document.getElementById('debugBadge');
-    const debugExpandBtn = document.getElementById('debugExpandBtn');
-
-    // State
-    let session = null;
-    let isConnected = false;
-    let audioStream = null;
-    let transcriptMap = new Map(); // Track messages by speaker-specific IDs
-    let logHistory = [];
-    let errorCount = 0;
-    let currentSessionId = null;
-    let callStartTime = null;
-    let pendingServerLogs = [];
-    let serverLogTimer = null;
-
-    // Call Logging System with localStorage persistence
-    function saveLogToStorage(logEntry) {
-      try {
-        // Get existing logs
-        const storedLogs = localStorage.getItem('talkaflow_call_logs');
-        let logs = storedLogs ? JSON.parse(storedLogs) : [];
-
-        // Add new log entry
-        logs.push(logEntry);
-
-        // Keep only last 500 log entries to prevent storage overflow
-        if (logs.length > 500) {
-          logs = logs.slice(-500);
-        }
-
-        // Save back to localStorage
-        localStorage.setItem('talkaflow_call_logs', JSON.stringify(logs));
-      } catch (error) {
-        console.error('Failed to save log to storage:', error);
-      }
-    }
-
-    function getStoredLogs() {
-      try {
-        const storedLogs = localStorage.getItem('talkaflow_call_logs');
-        return storedLogs ? JSON.parse(storedLogs) : [];
-      } catch (error) {
-        console.error('Failed to read logs from storage:', error);
-        return [];
-      }
-    }
-
-    function clearStoredLogs() {
-      try {
-        localStorage.removeItem('talkaflow_call_logs');
-        console.log('All call logs cleared from storage');
-      } catch (error) {
-        console.error('Failed to clear logs:', error);
-      }
-    }
-
-    function downloadLogs() {
-      try {
-        const logs = getStoredLogs();
-        const logText = logs.map(entry => {
-          return `[${entry.fullTimestamp}] [Session: ${entry.sessionId || 'N/A'}] [${entry.type.toUpperCase()}] ${entry.message}`;
-        }).join('\n');
-
-        const blob = new Blob([logText], { type: 'text/plain' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `talkaflow_logs_${new Date().toISOString().replace(/:/g, '-')}.txt`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-
-        log('Logs downloaded successfully', 'success');
-      } catch (error) {
-        log(`Failed to download logs: ${error.message}`, 'error');
-      }
-    }
-
-    // Send logs to server
-    async function sendLogsToServer(logEntries, immediate = false) {
-      if (!logEntries || logEntries.length === 0) return;
-
-      try {
-        // Send each log entry separately to preserve individual timestamps
-        for (const logEntry of logEntries) {
-          const response = await fetch('/api/submit-log', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(logEntry)
-          });
-
-          if (!response.ok) {
-            console.warn('Failed to send log to server:', response.status);
-          }
-        }
-      } catch (error) {
-        // Silently fail - don't interrupt user experience
-        console.warn('Could not send logs to server:', error.message);
-      }
-    }
-
-    // Queue log for server submission
-    function queueServerLog(logEntry, immediate = false) {
-      pendingServerLogs.push(logEntry);
-
-      // Send immediately for critical events
-      if (immediate) {
-        sendLogsToServer([...pendingServerLogs], true);
-        pendingServerLogs = [];
-        if (serverLogTimer) {
-          clearTimeout(serverLogTimer);
-          serverLogTimer = null;
-        }
-      } else {
-        // Batch send after 5 seconds
-        if (serverLogTimer) {
-          clearTimeout(serverLogTimer);
-        }
-        serverLogTimer = setTimeout(() => {
-          if (pendingServerLogs.length > 0) {
-            sendLogsToServer([...pendingServerLogs]);
-            pendingServerLogs = [];
-          }
-          serverLogTimer = null;
-        }, 5000);
-      }
-    }
-
-    // Logging
-    function log(message, type = 'info') {
-      const now = new Date();
-      const timestamp = now.toLocaleTimeString();
-      const fullTimestamp = now.toISOString();
-      const icon = type === 'error' ? '❌' : type === 'success' ? '✅' : 'ℹ️';
-
-      const div = document.createElement('div');
-      div.className = `mb-1 ${type === 'error' ? 'text-red-600' : type === 'success' ? 'text-green-600' : 'text-gray-600'}`;
-      div.innerHTML = `<span class="text-gray-400">[${timestamp}]</span> ${icon} ${message}`;
-
-      debugInfo.appendChild(div);
-      debugInfo.scrollTop = debugInfo.scrollHeight;
-      console.log(`[${timestamp}] ${message}`);
-
-      // Create log entry for storage
-      const logEntry = {
-        timestamp,
-        fullTimestamp,
-        message,
-        type,
-        icon,
-        sessionId: currentSessionId,
-        agentType: agentType,
-        browser: navigator.userAgent,
-        online: navigator.onLine
-      };
-
-      // Track in history
-      logHistory.push(logEntry);
-      if (logHistory.length > 50) logHistory.shift(); // Keep last 50 logs in memory
-
-      // Save to localStorage
-      saveLogToStorage(logEntry);
-
-      // Send to server - immediate for errors and critical events
-      const isCritical = type === 'error' ||
-                        message.includes('CALL SESSION STARTED') ||
-                        message.includes('CALL DISCONNECTED') ||
-                        message.includes('CALL FAILED');
-      queueServerLog(logEntry, isCritical);
-
-      // Update error count
-      if (type === 'error') {
-        errorCount++;
-        debugBadge.textContent = errorCount;
-        debugBadge.classList.remove('hidden');
-
-        // Auto-show preview on errors
-        setTimeout(() => {
-          debugPreview.classList.remove('hidden');
-        }, 100);
-      }
-
-      // Update preview with last 5 logs
-      updateDebugPreview();
-    }
-
-    // Update debug preview panel
-    function updateDebugPreview() {
-      const recentLogs = logHistory.slice(-5);
-      debugPreviewContent.innerHTML = recentLogs.map(entry => {
-        const color = entry.type === 'error' ? 'text-red-600' : entry.type === 'success' ? 'text-green-600' : 'text-gray-600';
-        return `<div class="${color}">${entry.icon} ${entry.message.substring(0, 60)}${entry.message.length > 60 ? '...' : ''}</div>`;
-      }).join('');
-    }
-
-    // Update status
-    function updateStatus(status) {
-      const statuses = {
-        'disconnected': { color: 'bg-gray-400', text: 'Disconnected' },
-        'connecting': { color: 'animate-pulse', customColor: '#116dff', text: 'Connecting...' },
-        'connected': { color: '', customColor: '#008250', text: 'Connected' },
-        'listening': { color: 'animate-pulse', customColor: '#116dff', text: 'Listening' },
-        'speaking': { color: '', customColor: '#df3131', text: 'AI Speaking' }
-      };
-
-      const s = statuses[status] || statuses.disconnected;
-      statusDot.className = `w-3 h-3 rounded-full ${s.color}`;
-      if (s.customColor) {
-        statusDot.style.backgroundColor = s.customColor;
-      } else {
-        statusDot.style.backgroundColor = '';
-      }
-      statusText.textContent = s.text;
-
-      isConnected = status !== 'disconnected';
-      updateCallButton();
-    }
-
-    // Update call button
-    function updateCallButton() {
-      if (isConnected) {
-        callButton.className = 'disabled:bg-gray-400 text-white px-12 py-6 rounded-xl font-bold text-xl transition-all transform hover:scale-105 shadow-lg disabled:cursor-not-allowed disabled:transform-none';
-        callButton.style.backgroundColor = '#df3131';
-        callButton.dataset.connected = 'true';
-        callButton.onmouseover = function() { if(!this.disabled) this.style.backgroundColor='#b92828'; };
-        callButton.onmouseout = function() { if(!this.disabled) this.style.backgroundColor='#df3131'; };
-        callIcon.className = 'fas fa-phone-slash mr-3';
-        callText.textContent = 'End Call';
-        callButton.disabled = false;
-      } else {
-        callButton.className = 'disabled:bg-gray-400 text-white px-12 py-6 rounded-xl font-bold text-xl transition-all transform hover:scale-105 shadow-lg disabled:cursor-not-allowed disabled:transform-none';
-        callButton.style.backgroundColor = '#008250';
-        callButton.dataset.connected = 'false';
-        callButton.onmouseover = function() { if(!this.disabled) this.style.backgroundColor='#006b43'; };
-        callButton.onmouseout = function() { if(!this.disabled) this.style.backgroundColor='#008250'; };
-        callIcon.className = 'fas fa-phone mr-3';
-        callText.textContent = 'Start Voice Call';
-        callButton.disabled = typeof UltravoxSession === 'undefined' || !agentConfig;
-      }
-    }
-
-    // Track current speaker's message element
-    let currentMessageElement = null;
-    let currentSpeaker = null;
-
-    // Add or update message to conversation
-    function addOrUpdateMessage(speaker, text, isFinal = false) {
-      if (conversation.children.length === 1 && conversation.children[0].querySelector('.fa-microphone')) {
-        conversation.innerHTML = '';
-      }
-
-      // If different speaker, create new message bubble
-      if (speaker !== currentSpeaker) {
-        const messageDiv = document.createElement('div');
-        messageDiv.className = `flex items-start space-x-3 p-4 rounded-lg ${
-          speaker === 'user'
-            ? 'border-l-4 ml-4'
-            : 'bg-white border-l-4 border-gray-300 mr-4 shadow-sm dark-mode-message-agent'
-        }`;
-
-        if (speaker === 'user') {
-          messageDiv.style.backgroundColor = 'rgba(17, 109, 255, 0.1)';
-          messageDiv.style.borderColor = '#116dff';
-        }
-
-        messageDiv.innerHTML = `
-          <div class="flex-shrink-0">
-            ${speaker === 'user'
-              ? `<div class="w-8 h-8 rounded-full flex items-center justify-center text-white" style="background-color: #116dff;">
-                  <i class="fas fa-user text-sm"></i>
-                </div>`
-              : `<img src="talkaFlow_logo_only.png" alt="TalkaFlow" class="w-8 h-8 rounded-full object-cover" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" />
-                 <div class="w-8 h-8 rounded-full bg-gray-600 text-white items-center justify-center" style="display:none;">
-                  <i class="fas fa-robot text-sm"></i>
-                </div>`
-            }
-          </div>
-          <div class="flex-1">
-            <div class="font-medium text-sm mb-1 ${speaker === 'user' ? '' : 'dark-mode-text'}" style="color: ${speaker === 'user' ? '#116dff' : '#212121'}">
-              ${speaker === 'user' ? 'You' : (agentConfig ? agentConfig.name : 'AI Assistant')}
+<body>
+    <div class="page-wrapper">
+        <!-- Top bar: logo + theme toggle -->
+        <div class="top-bar">
+            <div class="logo-container">
+                <img src="/static/talkaFlow_logo_light_mode.png" alt="TalkaFlow" class="logo-light">
+                <img src="/static/talkaFlow_logo_dark_mode.png" alt="TalkaFlow" class="logo-dark">
             </div>
-            <p class="text-gray-700 dark-mode-text-secondary message-text">${text}</p>
-          </div>
-        `;
+            <div class="theme-toggle" onclick="toggleTheme()">
+                <div class="theme-track">
+                    <div class="theme-icon theme-icon-sun" id="icon-sun">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                    </div>
+                    <div class="theme-icon theme-icon-moon" id="icon-moon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                    </div>
+                    <div class="theme-thumb" id="theme-thumb"></div>
+                </div>
+            </div>
+        </div>
 
-        conversation.appendChild(messageDiv);
-        currentMessageElement = messageDiv.querySelector('.message-text');
-        currentSpeaker = speaker;
-      } else {
-        // Same speaker, update existing bubble in real-time
-        if (currentMessageElement) {
-          currentMessageElement.textContent = text;
+        <!-- Main frame -->
+        <div class="voice-container">
+            <!-- Indigo header bar -->
+            <div class="voice-header">
+                <div class="header-icon"><i id="agentIcon" class="fas fa-headset"></i></div>
+                <div class="info">
+                    <h2 id="agentName">Voice Assistant</h2>
+                    <p><span class="status-dot-header"></span><span id="agentTitle">Ready</span></p>
+                </div>
+            </div>
+
+            <!-- Content -->
+            <div class="voice-content">
+                <!-- Status -->
+                <div class="status-area">
+                    <div class="status-label" id="status-text">Ready</div>
+                    <div class="status-sub" id="status-sub">Click below to start a voice call</div>
+                </div>
+
+                <!-- Call Button -->
+                <div class="call-area">
+                    <button id="call-btn" class="call-btn" disabled>
+                        <i id="call-icon" class="fas fa-phone"></i>
+                    </button>
+                    <p class="call-label" id="call-label">Start Call</p>
+                </div>
+
+                <!-- Suggestions -->
+                <div class="suggestions" id="suggestions">
+                    <p class="label"><i class="fas fa-lightbulb"></i> Try saying:</p>
+                    <div id="suggestionsList"></div>
+                </div>
+
+                <!-- Transcript -->
+                <div class="transcript-section">
+                    <div class="transcript-title">
+                        <i class="fas fa-comments"></i> Conversation
+                    </div>
+                    <div class="transcript-area" id="transcript">
+                        <div class="transcript-placeholder">
+                            <i class="fas fa-microphone"></i>
+                            Start a call to speak with the AI assistant
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Debug -->
+                <div class="debug-panel hidden" id="debug-panel">
+                    <h4>
+                        <span>Debug Log</span>
+                        <div class="debug-actions">
+                            <button class="btn-download" id="downloadLogsBtn" title="Download logs"><i class="fas fa-download"></i> Download</button>
+                            <button class="btn-clear" id="clearLogsBtn" title="Clear logs"><i class="fas fa-trash"></i> Clear</button>
+                        </div>
+                    </h4>
+                    <div class="debug-log" id="debug-log"></div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="nav-links">
+                <a href="#" id="debug-toggle"><i class="fas fa-bug"></i> Debug</a>
+            </div>
+
+            <div class="powered-by">Powered by <a href="https://www.talkaflow.com">TalkaFlow</a></div>
+        </div>
+    </div>
+
+    <script>
+        // ========== Theme Toggle ==========
+        function toggleTheme() {
+            var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+            var newTheme = isDark ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            document.documentElement.classList.toggle('dark', newTheme === 'dark');
+            localStorage.setItem('theme', newTheme);
+            syncToggleUI(newTheme === 'dark');
         }
-      }
-
-      // If final, reset tracking so next message creates new bubble
-      if (isFinal) {
-        currentMessageElement = null;
-        currentSpeaker = null;
-      }
-
-      conversation.scrollTop = conversation.scrollHeight;
-    }
-
-    // Legacy function for static messages
-    function addMessage(speaker, text) {
-      addOrUpdateMessage(speaker, text, true);
-    }
-
-    // Create call
-    async function createCall() {
-      try {
-        log(`Making API request via proxy: /api/ultravox`);
-
-        const response = await fetch('/api/ultravox', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ agentId: agentConfig.id })
+        function syncToggleUI(isDark) {
+            var thumb = document.getElementById('theme-thumb');
+            var sun = document.getElementById('icon-sun');
+            var moon = document.getElementById('icon-moon');
+            if (thumb) thumb.style.transform = isDark ? 'translateX(24px)' : 'translateX(0)';
+            if (sun) sun.style.opacity = isDark ? '0' : '1';
+            if (moon) moon.style.opacity = isDark ? '1' : '0';
+        }
+        document.addEventListener('DOMContentLoaded', function() {
+            syncToggleUI(document.documentElement.getAttribute('data-theme') === 'dark');
         });
 
-        log(`Response status: ${response.status}`);
+        // ========== Agent Config ==========
+        let agentConfig = null;
+        let agentsData = null;
 
-        if (!response.ok) {
-          const errorData = await response.json();
-          log(`API error response: ${JSON.stringify(errorData)}`, 'error');
-          throw new Error(`API Error ${response.status}: ${errorData.error || 'Unknown error'}`);
+        function getAgentType() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const queryAgent = urlParams.get('agent');
+            if (queryAgent) return queryAgent;
+
+            const path = window.location.pathname;
+            const pathMatch = path.match(/\/(hotel|clinic|aftersales|restaurant|hairstudio|hepa|dental)/);
+            if (pathMatch) return pathMatch[1];
+
+            return 'hotel';
         }
 
-        const data = await response.json();
-        log(`Call created successfully: ${data.callId}`, 'success');
-        return data;
-      } catch (error) {
-        log(`Fetch error: ${error.message}`, 'error');
-        if (error.message.includes('Failed to fetch')) {
-          throw new Error('Network error: Unable to connect to API proxy.');
+        const agentType = getAgentType();
+
+        fetch('/agents-config.json')
+            .then(res => res.json())
+            .then(data => {
+                agentsData = data;
+                agentConfig = data[agentType];
+
+                if (!agentConfig) {
+                    console.error('Unknown agent type:', agentType);
+                    agentConfig = data.hotel;
+                }
+
+                updateAgentInfo();
+                updateCallButton();
+            })
+            .catch(err => {
+                console.error('Failed to load agent config:', err);
+            });
+
+        function updateAgentInfo() {
+            if (!agentConfig) return;
+
+            document.title = `${agentConfig.name} - TalkaFlow Voice AI`;
+            document.getElementById('pageTitle').textContent = `${agentConfig.name} - TalkaFlow`;
+            document.getElementById('agentName').textContent = agentConfig.name;
+            document.getElementById('agentTitle').textContent = agentConfig.title;
+            document.getElementById('agentIcon').className = `fas ${agentConfig.icon}`;
+
+            // Update suggestions
+            const suggestionsList = document.getElementById('suggestionsList');
+            suggestionsList.innerHTML = '';
+            agentConfig.suggestions.forEach(suggestion => {
+                const p = document.createElement('p');
+                p.textContent = `"${suggestion}"`;
+                suggestionsList.appendChild(p);
+            });
+
+            log(`Agent loaded: ${agentConfig.name} (${agentConfig.id})`);
         }
-        throw error;
-      }
-    }
 
-    // Start call
-    async function startCall() {
-      try {
-        // Generate unique session ID for this call
-        currentSessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-        callStartTime = new Date();
+        // ========== UI Elements ==========
+        const callBtn = document.getElementById('call-btn');
+        const callIcon = document.getElementById('call-icon');
+        const callLabel = document.getElementById('call-label');
+        const statusText = document.getElementById('status-text');
+        const statusSub = document.getElementById('status-sub');
+        const transcriptEl = document.getElementById('transcript');
+        const debugLog = document.getElementById('debug-log');
+        const debugPanel = document.getElementById('debug-panel');
+        const suggestionsEl = document.getElementById('suggestions');
 
-        log('=== NEW CALL SESSION STARTED ===', 'info');
-        log(`Session ID: ${currentSessionId}`, 'info');
-        log(`Agent: ${agentConfig.name} (${agentConfig.id})`, 'info');
-        log('Starting voice call...');
-        updateStatus('connecting');
+        // ========== State ==========
+        let session = null;
+        let isConnected = false;
+        let audioStream = null;
+        let logHistory = [];
+        let errorCount = 0;
+        let currentSessionId = null;
+        let callStartTime = null;
+        let pendingServerLogs = [];
+        let serverLogTimer = null;
+        let currentMessageElement = null;
+        let currentSpeaker = null;
 
-        if (typeof UltravoxSession === 'undefined') {
-          throw new Error('Voice SDK not loaded. Please refresh the page.');
-        }
-
-        if (!agentConfig) {
-          throw new Error('Agent configuration not loaded. Please refresh the page.');
-        }
-
-        // Create call
-        const callData = await createCall();
-        log(`Call created: ${callData.callId}`, 'success');
-
-        // Initialize session
-        session = new UltravoxSession();
-
-        // Setup listeners
-        session.addEventListener('status', () => {
-          const previousStatus = session.status;
-          updateStatus(session.status);
-          log(`Status changed: ${previousStatus} → ${session.status}`);
-        });
-
-        session.addEventListener('transcripts', () => {
-          const transcripts = session.transcripts;
-          if (transcripts && transcripts.length > 0) {
-            const latest = transcripts[transcripts.length - 1];
-
-            // Only log final transcripts to reduce debug noise
-            if (latest.isFinal) {
-              log(`Transcript: [${latest.speaker}] "${latest.text}" (final: ${latest.isFinal})`);
+        // ========== Call Logging with localStorage ==========
+        function saveLogToStorage(logEntry) {
+            try {
+                const storedLogs = localStorage.getItem('talkaflow_call_logs');
+                let logs = storedLogs ? JSON.parse(storedLogs) : [];
+                logs.push(logEntry);
+                if (logs.length > 500) logs = logs.slice(-500);
+                localStorage.setItem('talkaflow_call_logs', JSON.stringify(logs));
+            } catch (error) {
+                console.error('Failed to save log to storage:', error);
             }
+        }
 
-            // Determine speaker
-            const speaker = latest.speaker === 'user' ? 'user' : 'agent';
+        function getStoredLogs() {
+            try {
+                const storedLogs = localStorage.getItem('talkaflow_call_logs');
+                return storedLogs ? JSON.parse(storedLogs) : [];
+            } catch (error) {
+                console.error('Failed to read logs from storage:', error);
+                return [];
+            }
+        }
 
-            // Show all transcripts in real-time (both interim and final)
-            addOrUpdateMessage(speaker, latest.text, latest.isFinal);
-          }
-        });
+        function clearStoredLogs() {
+            try {
+                localStorage.removeItem('talkaflow_call_logs');
+                console.log('All call logs cleared from storage');
+            } catch (error) {
+                console.error('Failed to clear logs:', error);
+            }
+        }
 
-        // Add error and disconnect listeners for diagnostics
-        session.addEventListener('error', (event) => {
-          log(`⚠️ Session error: ${JSON.stringify(event)}`, 'error');
-          console.error('talkaflow-uvx session error:', event);
-        });
+        function downloadLogs() {
+            try {
+                const logs = getStoredLogs();
+                const logText = logs.map(entry => {
+                    return `[${entry.fullTimestamp}] [Session: ${entry.sessionId || 'N/A'}] [${entry.type.toUpperCase()}] ${entry.message}`;
+                }).join('\n');
 
-        session.addEventListener('disconnect', (event) => {
-          const disconnectTime = new Date();
-          log('=== CALL DISCONNECTED ===', 'error');
-          log(`Disconnect time: ${disconnectTime.toISOString()}`, 'error');
-          log(`Session ID: ${currentSessionId}`, 'error');
+                const blob = new Blob([logText], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `talkaflow_logs_${new Date().toISOString().replace(/:/g, '-')}.txt`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
 
-          // Log call duration
-          if (callStartTime) {
-            const callDuration = Math.floor((disconnectTime - callStartTime) / 1000);
-            log(`Total call duration: ${callDuration} seconds`, 'error');
-          }
+                log('Logs downloaded successfully', 'success');
+            } catch (error) {
+                log(`Failed to download logs: ${error.message}`, 'error');
+            }
+        }
 
-          // Log disconnect event details
-          if (event && event.detail) {
-            log(`Disconnect reason: ${JSON.stringify(event.detail)}`, 'error');
-          } else if (event) {
-            log(`Disconnect event: ${JSON.stringify(event)}`, 'error');
-          }
+        // ========== Server Log Submission ==========
+        async function sendLogsToServer(logEntries, immediate = false) {
+            if (!logEntries || logEntries.length === 0) return;
+            try {
+                for (const logEntry of logEntries) {
+                    const response = await fetch('/api/submit-log', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(logEntry)
+                    });
+                    if (!response.ok) console.warn('Failed to send log to server:', response.status);
+                }
+            } catch (error) {
+                console.warn('Could not send logs to server:', error.message);
+            }
+        }
 
-          // Log network status at disconnect
-          log(`Network online: ${navigator.onLine}`, 'error');
-          log(`Connection type: ${navigator.connection?.effectiveType || 'Unknown'}`, 'error');
-
-          console.warn('talkaflow-uvx session disconnected:', event);
-          updateStatus('disconnected');
-
-          // Provide specific feedback based on when disconnect happened
-          if (isConnected) {
-            const wasShort = callStartTime && (Date.now() - callStartTime < 10000);
-            if (wasShort) {
-              addMessage('agent', '⚠️ Call ended shortly after greeting. This may be due to: (1) No microphone input detected, (2) Agent timeout, or (3) Network issue. Please ensure your microphone is working and try again.');
-              log('⚠️ Short call detected - likely microphone or agent timeout issue', 'error');
+        function queueServerLog(logEntry, immediate = false) {
+            pendingServerLogs.push(logEntry);
+            if (immediate) {
+                sendLogsToServer([...pendingServerLogs], true);
+                pendingServerLogs = [];
+                if (serverLogTimer) { clearTimeout(serverLogTimer); serverLogTimer = null; }
             } else {
-              addMessage('agent', '⚠️ Call disconnected unexpectedly. Please check your internet connection and microphone permissions.');
+                if (serverLogTimer) clearTimeout(serverLogTimer);
+                serverLogTimer = setTimeout(() => {
+                    if (pendingServerLogs.length > 0) {
+                        sendLogsToServer([...pendingServerLogs]);
+                        pendingServerLogs = [];
+                    }
+                    serverLogTimer = null;
+                }, 5000);
             }
-          }
+        }
+
+        // ========== Logging ==========
+        function log(message, type = 'info') {
+            const now = new Date();
+            const timestamp = now.toLocaleTimeString();
+            const fullTimestamp = now.toISOString();
+
+            const div = document.createElement('div');
+            if (type === 'error') div.className = 'log-error';
+            else if (type === 'success') div.className = 'log-success';
+            div.textContent = `[${timestamp}] ${message}`;
+            debugLog.appendChild(div);
+            debugLog.scrollTop = debugLog.scrollHeight;
+            console.log(`[${timestamp}] ${message}`);
+
+            const logEntry = {
+                timestamp, fullTimestamp, message, type,
+                sessionId: currentSessionId,
+                agentType: agentType,
+                browser: navigator.userAgent,
+                online: navigator.onLine
+            };
+
+            logHistory.push(logEntry);
+            if (logHistory.length > 50) logHistory.shift();
+
+            saveLogToStorage(logEntry);
+
+            const isCritical = type === 'error' ||
+                message.includes('CALL SESSION STARTED') ||
+                message.includes('CALL DISCONNECTED') ||
+                message.includes('CALL FAILED');
+            queueServerLog(logEntry, isCritical);
+        }
+
+        // ========== Status ==========
+        function setStatus(status, sub) {
+            statusText.textContent = status;
+            if (sub) statusSub.textContent = sub;
+        }
+
+        function updateCallButton() {
+            if (isConnected) {
+                callBtn.disabled = false;
+                callBtn.classList.add('active');
+                callIcon.className = 'fas fa-phone-slash';
+                callLabel.textContent = 'End Call';
+            } else {
+                callBtn.classList.remove('active');
+                callIcon.className = 'fas fa-phone';
+                callLabel.textContent = 'Start Call';
+                callBtn.disabled = typeof UltravoxSession === 'undefined' || !agentConfig;
+            }
+        }
+
+        // ========== Transcript Rendering ==========
+        function addOrUpdateTranscript(speaker, text, isFinal = false) {
+            const isUser = speaker === 'user';
+
+            // Clear placeholder
+            if (transcriptEl.querySelector('.transcript-placeholder')) {
+                transcriptEl.innerHTML = '';
+            }
+
+            // If different speaker, create new message block
+            if (speaker !== currentSpeaker) {
+                const div = document.createElement('div');
+                div.className = `transcript-msg ${isUser ? 'user-msg' : 'agent-msg'}`;
+                div.innerHTML = `
+                    <div class="transcript-avatar ${isUser ? 'user-avatar' : 'agent-avatar'}">
+                        <i class="fas ${isUser ? 'fa-user' : 'fa-headset'}"></i>
+                    </div>
+                    <div>
+                        <div class="transcript-speaker ${isUser ? 'user-name' : 'agent-name'}">${isUser ? 'You' : (agentConfig ? agentConfig.name : 'AI')}</div>
+                        <div class="transcript-text msg-text"></div>
+                    </div>`;
+                transcriptEl.appendChild(div);
+                currentMessageElement = div.querySelector('.msg-text');
+                currentSpeaker = speaker;
+            }
+
+            // Update text in current block
+            if (currentMessageElement) {
+                currentMessageElement.textContent = text;
+            }
+
+            // If final, reset tracking so next message creates new bubble
+            if (isFinal) {
+                currentMessageElement = null;
+                currentSpeaker = null;
+            }
+
+            transcriptEl.scrollTop = transcriptEl.scrollHeight;
+        }
+
+        function addMessage(speaker, text) {
+            addOrUpdateTranscript(speaker, text, true);
+        }
+
+        // ========== API Call ==========
+        async function createCall() {
+            try {
+                log(`Making API request via proxy: /api/ultravox`);
+                const response = await fetch('/api/ultravox', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ agentId: agentConfig.id })
+                });
+
+                log(`Response status: ${response.status}`);
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    log(`API error response: ${JSON.stringify(errorData)}`, 'error');
+                    throw new Error(`API Error ${response.status}: ${errorData.error || 'Unknown error'}`);
+                }
+
+                const data = await response.json();
+                log(`Call created successfully: ${data.callId}`, 'success');
+                return data;
+            } catch (error) {
+                log(`Fetch error: ${error.message}`, 'error');
+                if (error.message.includes('Failed to fetch')) {
+                    throw new Error('Network error: Unable to connect to API proxy.');
+                }
+                throw error;
+            }
+        }
+
+        // ========== Start Call ==========
+        async function startCall() {
+            try {
+                currentSessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+                callStartTime = new Date();
+
+                log('=== NEW CALL SESSION STARTED ===', 'info');
+                log(`Session ID: ${currentSessionId}`, 'info');
+                log(`Agent: ${agentConfig.name} (${agentConfig.id})`, 'info');
+                log('Starting voice call...');
+                setStatus('Connecting...', 'Setting up voice connection');
+                callBtn.disabled = true;
+
+                if (typeof UltravoxSession === 'undefined') {
+                    throw new Error('Voice SDK not loaded. Please refresh the page.');
+                }
+
+                if (!agentConfig) {
+                    throw new Error('Agent configuration not loaded. Please refresh the page.');
+                }
+
+                // Request microphone
+                log('Requesting microphone permission...');
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    log('Microphone permission granted', 'success');
+
+                    const audioContext = new AudioContext();
+                    const source = audioContext.createMediaStreamSource(stream);
+                    const analyser = audioContext.createAnalyser();
+                    source.connect(analyser);
+                    await new Promise(resolve => setTimeout(resolve, 200));
+
+                    const dataArray = new Uint8Array(analyser.frequencyBinCount);
+                    analyser.getByteFrequencyData(dataArray);
+                    const average = dataArray.reduce((a, b) => a + b) / dataArray.length;
+
+                    if (average > 0) {
+                        log(`Microphone is active (level: ${Math.floor(average)})`, 'success');
+                    } else {
+                        log('Microphone ready (background noise level: low)', 'info');
+                    }
+
+                    audioStream = stream;
+                } catch (micError) {
+                    log(`Microphone permission denied: ${micError.message}`, 'error');
+                    throw new Error('Microphone access required for voice calls. Please allow microphone access and try again.');
+                }
+
+                // Create call
+                const callData = await createCall();
+                log(`Call created: ${callData.callId}`, 'success');
+
+                // Initialize session
+                session = new UltravoxSession();
+
+                session.addEventListener('status', () => {
+                    const s = session.status;
+                    log(`Status: ${s}`);
+                    if (s === 'listening') setStatus('Listening', 'Speak now...');
+                    else if (s === 'speaking') setStatus('AI Speaking', agentConfig ? `${agentConfig.name} is responding` : 'AI is responding');
+                    else if (s === 'idle' || s === 'connected') setStatus('Connected', 'Call active');
+                    else if (s === 'disconnected') endCallUI();
+
+                    isConnected = s !== 'disconnected';
+                    updateCallButton();
+                });
+
+                session.addEventListener('transcripts', () => {
+                    const transcripts = session.transcripts;
+                    if (transcripts && transcripts.length > 0) {
+                        const latest = transcripts[transcripts.length - 1];
+                        if (latest.isFinal) {
+                            log(`Transcript: [${latest.speaker}] "${latest.text}" (final: ${latest.isFinal})`);
+                        }
+                        const speaker = latest.speaker === 'user' ? 'user' : 'agent';
+                        addOrUpdateTranscript(speaker, latest.text, latest.isFinal);
+                    }
+                });
+
+                session.addEventListener('error', (event) => {
+                    log(`Session error: ${JSON.stringify(event)}`, 'error');
+                });
+
+                session.addEventListener('disconnect', (event) => {
+                    const disconnectTime = new Date();
+                    log('=== CALL DISCONNECTED ===', 'error');
+                    log(`Disconnect time: ${disconnectTime.toISOString()}`, 'error');
+                    log(`Session ID: ${currentSessionId}`, 'error');
+
+                    if (callStartTime) {
+                        const callDuration = Math.floor((disconnectTime - callStartTime) / 1000);
+                        log(`Total call duration: ${callDuration} seconds`, 'error');
+                    }
+
+                    if (event && event.detail) {
+                        log(`Disconnect reason: ${JSON.stringify(event.detail)}`, 'error');
+                    }
+
+                    log(`Network online: ${navigator.onLine}`, 'error');
+                    log(`Connection type: ${navigator.connection?.effectiveType || 'Unknown'}`, 'error');
+
+                    if (isConnected) {
+                        const wasShort = callStartTime && (Date.now() - callStartTime < 10000);
+                        if (wasShort) {
+                            addMessage('agent', 'Call ended shortly after greeting. This may be due to: (1) No microphone input detected, (2) Agent timeout, or (3) Network issue. Please ensure your microphone is working and try again.');
+                            log('Short call detected - likely microphone or agent timeout issue', 'error');
+                        } else {
+                            addMessage('agent', 'Call disconnected unexpectedly. Please check your internet connection and microphone permissions.');
+                        }
+                    }
+
+                    endCallUI();
+                });
+
+                // Monitor connection quality
+                let lastActivityTime = Date.now();
+                const activityMonitor = setInterval(() => {
+                    if (session && isConnected) {
+                        const timeSinceActivity = Date.now() - lastActivityTime;
+                        if (timeSinceActivity > 30000) {
+                            log(`No activity for ${Math.floor(timeSinceActivity / 1000)}s`, 'error');
+                        }
+                    } else {
+                        clearInterval(activityMonitor);
+                    }
+                }, 10000);
+
+                session.addEventListener('transcripts', () => {
+                    lastActivityTime = Date.now();
+                });
+
+                // Join call
+                log('Joining call...');
+                await session.joinCall(callData.joinUrl);
+                log('Voice call connected!', 'success');
+                lastActivityTime = Date.now();
+
+                isConnected = true;
+                callBtn.disabled = false;
+                callBtn.classList.add('active');
+                callIcon.className = 'fas fa-phone-slash';
+                callLabel.textContent = 'End Call';
+                suggestionsEl.classList.add('hidden');
+                setStatus('Connected', 'Call active - speak now');
+
+            } catch (error) {
+                log('=== CALL FAILED TO START ===', 'error');
+                log(`Error: ${error.message}`, 'error');
+                log(`Error stack: ${error.stack}`, 'error');
+                log(`Session ID: ${currentSessionId}`, 'error');
+                setStatus('Error', error.message);
+                endCallUI();
+                currentSessionId = null;
+                callStartTime = null;
+                alert(`Failed to start call: ${error.message}`);
+            }
+        }
+
+        // ========== End Call ==========
+        async function endCall() {
+            try {
+                log('=== USER ENDED CALL ===', 'info');
+                log('Ending call...');
+
+                if (callStartTime) {
+                    const endTime = new Date();
+                    const callDuration = Math.floor((endTime - callStartTime) / 1000);
+                    log(`Call duration: ${callDuration} seconds`, 'info');
+                }
+
+                if (session) {
+                    await session.leaveCall();
+                    session = null;
+                }
+
+                if (audioStream) {
+                    audioStream.getTracks().forEach(track => track.stop());
+                    audioStream = null;
+                }
+
+                log('Call ended successfully', 'success');
+                log(`Session ID: ${currentSessionId}`, 'info');
+
+                addMessage('agent', `Thank you for contacting ${agentConfig ? agentConfig.name : 'us'}. Have a wonderful day!`);
+
+                currentSessionId = null;
+                callStartTime = null;
+
+            } catch (error) {
+                log(`Error ending call: ${error.message}`, 'error');
+            }
+            endCallUI();
+        }
+
+        function endCallUI() {
+            isConnected = false;
+            callBtn.disabled = false;
+            callBtn.classList.remove('active');
+            callIcon.className = 'fas fa-phone';
+            callLabel.textContent = 'Start Call';
+            suggestionsEl.classList.remove('hidden');
+            setStatus('Call Ended', 'Click to start a new call');
+            updateCallButton();
+        }
+
+        // ========== Event Listeners ==========
+        callBtn.addEventListener('click', () => {
+            if (isConnected) endCall(); else startCall();
         });
 
-        // Monitor connection quality
-        let lastActivityTime = Date.now();
-        const activityMonitor = setInterval(() => {
-          if (session && isConnected) {
-            const timeSinceActivity = Date.now() - lastActivityTime;
-            if (timeSinceActivity > 30000) { // 30 seconds of silence
-              log(`⚠️ No activity for ${Math.floor(timeSinceActivity / 1000)}s`, 'error');
-            }
-          } else {
-            clearInterval(activityMonitor);
-          }
-        }, 10000); // Check every 10 seconds
-
-        // Track activity
-        session.addEventListener('transcripts', () => {
-          lastActivityTime = Date.now();
+        document.getElementById('debug-toggle').addEventListener('click', (e) => {
+            e.preventDefault();
+            debugPanel.classList.toggle('hidden');
         });
 
-        // Request microphone permission explicitly before joining
-        log('Requesting microphone permission...');
-        try {
-          const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-          log('✅ Microphone permission granted', 'success');
+        document.getElementById('downloadLogsBtn').addEventListener('click', () => {
+            downloadLogs();
+        });
 
-          // Test if we're getting audio input (wait for mic to warm up)
-          const audioContext = new AudioContext();
-          const source = audioContext.createMediaStreamSource(stream);
-          const analyser = audioContext.createAnalyser();
-          source.connect(analyser);
+        document.getElementById('clearLogsBtn').addEventListener('click', () => {
+            if (confirm('Are you sure you want to clear all saved call logs? This cannot be undone.')) {
+                clearStoredLogs();
+                log('All logs cleared from storage', 'success');
+            }
+        });
 
-          // Wait 200ms for microphone to start capturing audio
-          await new Promise(resolve => setTimeout(resolve, 200));
+        // ========== Network Monitoring ==========
+        window.addEventListener('online', () => {
+            log('Network connection restored', 'success');
+        });
 
-          const dataArray = new Uint8Array(analyser.frequencyBinCount);
-          analyser.getByteFrequencyData(dataArray);
-          const average = dataArray.reduce((a, b) => a + b) / dataArray.length;
+        window.addEventListener('offline', () => {
+            log('Network connection lost!', 'error');
+            if (session && isConnected) {
+                alert('Network connection lost. The call may disconnect.');
+            }
+        });
 
-          if (average > 0) {
-            log(`✅ Microphone is active (level: ${Math.floor(average)})`, 'success');
-          } else {
-            log('ℹ️ Microphone ready (background noise level: low)', 'info');
-          }
+        window.addEventListener('beforeunload', () => {
+            if (pendingServerLogs.length > 0) {
+                sendLogsToServer([...pendingServerLogs], true);
+            }
+            if (session && isConnected) {
+                log('Page closing - ending call automatically');
+                try { session.leaveCall(); } catch (e) {}
+                if (audioStream) audioStream.getTracks().forEach(track => track.stop());
+            }
+        });
 
-          audioStream = stream;
-        } catch (micError) {
-          log(`❌ Microphone permission denied: ${micError.message}`, 'error');
-          throw new Error('Microphone access required for voice calls. Please allow microphone access and try again.');
-        }
+        window.addEventListener('pagehide', () => {
+            if (session && isConnected) {
+                log('Page unloading - ending call');
+                try { session.leaveCall(); } catch (e) {}
+            }
+        });
 
-        // Join call
-        log('Joining call with talkaflow-uvx...');
-        await session.joinCall(callData.joinUrl);
-        log('✅ Voice call connected!', 'success');
-        lastActivityTime = Date.now();
+        // ========== Initialize ==========
+        document.addEventListener('DOMContentLoaded', async () => {
+            log('TalkaFlow Voice AI Interface loaded');
+            log(`Browser: ${navigator.userAgent}`);
+            log(`Online: ${navigator.onLine ? 'Yes' : 'No'}`);
+            log(`Connection: ${navigator.connection?.effectiveType || 'Unknown'}`);
+            log(`Agent Type: ${agentType}`);
 
-      } catch (error) {
-        log('=== CALL FAILED TO START ===', 'error');
-        log(`Error: ${error.message}`, 'error');
-        log(`Error stack: ${error.stack}`, 'error');
-        log(`Session ID: ${currentSessionId}`, 'error');
-        updateStatus('disconnected');
+            const storedLogs = getStoredLogs();
+            log(`Stored logs: ${storedLogs.length} entries in localStorage`);
+            if (storedLogs.length > 0) {
+                log(`Oldest log: ${storedLogs[0].fullTimestamp}`);
+                log(`Newest log: ${storedLogs[storedLogs.length - 1].fullTimestamp}`);
+            }
 
-        // Clear session tracking on failure
-        currentSessionId = null;
-        callStartTime = null;
-
-        alert(`Failed to start call: ${error.message}`);
-      }
-    }
-
-    // End call
-    async function endCall() {
-      try {
-        log('=== USER ENDED CALL ===', 'info');
-        log('Ending call...');
-
-        // Log call duration
-        if (callStartTime) {
-          const endTime = new Date();
-          const callDuration = Math.floor((endTime - callStartTime) / 1000);
-          log(`Call duration: ${callDuration} seconds`, 'info');
-        }
-
-        if (session) {
-          await session.leaveCall();
-          session = null;
-        }
-
-        if (audioStream) {
-          audioStream.getTracks().forEach(track => track.stop());
-          audioStream = null;
-        }
-
-        updateStatus('disconnected');
-        log(`Call ended successfully`, 'success');
-        log(`Session ID: ${currentSessionId}`, 'info');
-
-        addMessage('agent', `Thank you for contacting ${agentConfig.name}. Have a wonderful day!`);
-
-        // Clear session ID
-        currentSessionId = null;
-        callStartTime = null;
-
-      } catch (error) {
-        log(`Error ending call: ${error.message}`, 'error');
-        updateStatus('disconnected');
-      }
-    }
-
-    // Call button handler
-    callButton.addEventListener('click', () => {
-      if (isConnected) {
-        endCall();
-      } else {
-        startCall();
-      }
-    });
-
-    // Debug preview toggle
-    let previewVisible = false;
-    debugToggle.addEventListener('click', () => {
-      previewVisible = !previewVisible;
-      if (previewVisible) {
-        debugPreview.classList.remove('hidden');
-      } else {
-        debugPreview.classList.add('hidden');
-      }
-    });
-
-    // Debug expand button - opens full modal
-    debugExpandBtn.addEventListener('click', () => {
-      debugPreview.classList.add('hidden');
-      previewVisible = false;
-      debugModal.classList.remove('hidden');
-      debugModal.classList.add('flex');
-    });
-
-    // Debug modal close
-    debugClose.addEventListener('click', () => {
-      debugModal.classList.add('hidden');
-      debugModal.classList.remove('flex');
-    });
-
-    // Close modal when clicking outside
-    debugModal.addEventListener('click', (e) => {
-      if (e.target === debugModal) {
-        debugModal.classList.add('hidden');
-        debugModal.classList.remove('flex');
-      }
-    });
-
-    // Download logs button
-    const downloadLogsBtn = document.getElementById('downloadLogsBtn');
-    downloadLogsBtn.addEventListener('click', () => {
-      downloadLogs();
-    });
-
-    // Clear logs button
-    const clearLogsBtn = document.getElementById('clearLogsBtn');
-    clearLogsBtn.addEventListener('click', () => {
-      if (confirm('Are you sure you want to clear all saved call logs? This cannot be undone.')) {
-        clearStoredLogs();
-        log('All logs cleared from storage', 'success');
-      }
-    });
-
-    // Monitor network connectivity
-    window.addEventListener('online', () => {
-      log('✅ Network connection restored', 'success');
-    });
-
-    window.addEventListener('offline', () => {
-      log('❌ Network connection lost!', 'error');
-      if (session && isConnected) {
-        alert('Network connection lost. The call may disconnect.');
-      }
-    });
-
-    // Auto-cleanup when page is closed or navigated away
-    window.addEventListener('beforeunload', (event) => {
-      // Send any pending logs immediately before page closes
-      if (pendingServerLogs.length > 0) {
-        sendLogsToServer([...pendingServerLogs], true);
-      }
-
-      if (session && isConnected) {
-        log('Page closing - ending call automatically');
-        // End call immediately without waiting
-        if (session) {
-          try {
-            session.leaveCall();
-          } catch (e) {
-            console.error('Error leaving call:', e);
-          }
-        }
-        if (audioStream) {
-          audioStream.getTracks().forEach(track => track.stop());
-        }
-      }
-    });
-
-    // Note: Removed visibility change listener to allow tab switching during calls
-    // Calls will only end when the page is actually closed (beforeunload/pagehide)
-
-    // Handle page unload (when navigating to another page)
-    window.addEventListener('pagehide', () => {
-      if (session && isConnected) {
-        log('Page unloading - ending call');
-        if (session) {
-          try {
-            session.leaveCall();
-          } catch (e) {
-            console.error('Error leaving call:', e);
-          }
-        }
-      }
-    });
-
-    // Dark Mode Toggle
-    const darkModeToggle = document.getElementById('darkModeToggle');
-    const darkModeIcon = document.getElementById('darkModeIcon');
-
-    // Check for saved dark mode preference
-    const isDarkMode = localStorage.getItem('darkMode') === 'true';
-    if (isDarkMode) {
-      document.body.classList.add('dark-mode');
-      darkModeIcon.className = 'fas fa-sun text-lg';
-    }
-
-    // Toggle dark mode
-    darkModeToggle.addEventListener('click', () => {
-      document.body.classList.toggle('dark-mode');
-      const isDark = document.body.classList.contains('dark-mode');
-
-      // Update icon
-      darkModeIcon.className = isDark ? 'fas fa-sun text-lg' : 'fas fa-moon text-lg';
-
-      // Save preference
-      localStorage.setItem('darkMode', isDark);
-
-      log(`Dark mode ${isDark ? 'enabled' : 'disabled'}`);
-    });
-
-    // Initialize
-    document.addEventListener('DOMContentLoaded', async () => {
-      log('TalkaFlow Voice AI Interface loaded');
-
-      // Log system information for diagnostics
-      log(`Browser: ${navigator.userAgent}`);
-      log(`Online: ${navigator.onLine ? 'Yes' : 'No'}`);
-      log(`Connection: ${navigator.connection?.effectiveType || 'Unknown'}`);
-      log(`Agent Type: ${agentType}`);
-
-      // Log stored logs information
-      const storedLogs = getStoredLogs();
-      log(`Stored logs: ${storedLogs.length} entries in localStorage`);
-      if (storedLogs.length > 0) {
-        const oldestLog = storedLogs[0];
-        const newestLog = storedLogs[storedLogs.length - 1];
-        log(`Oldest log: ${oldestLog.fullTimestamp}`);
-        log(`Newest log: ${newestLog.fullTimestamp}`);
-      }
-
-      updateStatus('disconnected');
-
-      // Load SDK
-      log('Loading voice processing SDK...');
-      try {
-        const loaded = await window.loadSDK();
-        if (loaded) {
-          log('Voice SDK loaded successfully!', 'success');
-          updateCallButton();
-        } else {
-          log('Failed to load voice SDK', 'error');
-          callButton.disabled = true;
-          callText.textContent = 'Voice SDK Unavailable';
-        }
-      } catch (error) {
-        log(`SDK error: ${error.message}`, 'error');
-        callButton.disabled = true;
-      }
-    });
-  </script>
+            log('Loading voice processing SDK...');
+            try {
+                const loaded = await window.loadSDK();
+                if (loaded) {
+                    log('Voice SDK loaded successfully!', 'success');
+                    updateCallButton();
+                } else {
+                    log('Failed to load voice SDK', 'error');
+                    setStatus('Error', 'Voice SDK could not load');
+                }
+            } catch (error) {
+                log(`SDK error: ${error.message}`, 'error');
+            }
+        });
+    </script>
 </body>
 </html>

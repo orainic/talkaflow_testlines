@@ -1,0 +1,207 @@
+/* 
+  Design Tokens
+  ---------------------------------------------------------
+  Primitive values and semantic abstractions for the design system.
+  Using CSS Variables for runtime dynamic theming capabilities.
+*/
+
+:root {
+    /* ============================================
+     1. Primitives (Base Values)
+     ============================================ */
+
+    /* Color Palette - Indigo (Primary) */
+    --palette-indigo-50: #eef2ff;
+    --palette-indigo-100: #e0e7ff;
+    --palette-indigo-200: #c7d2fe;
+    --palette-indigo-300: #a5b4fc;
+    --palette-indigo-400: #818cf8;
+    --palette-indigo-500: #6366f1;
+    /* Primary Brand */
+    --palette-indigo-600: #4f46e5;
+    --palette-indigo-700: #4338ca;
+    --palette-indigo-800: #3730a3;
+    --palette-indigo-900: #312e81;
+    --palette-indigo-950: #1e1b4b;
+
+    /* Color Palette - Slate (Neutrals) */
+    --palette-slate-50: #f8fafc;
+    --palette-slate-100: #f1f5f9;
+    --palette-slate-200: #e2e8f0;
+    --palette-slate-300: #cbd5e1;
+    --palette-slate-400: #94a3b8;
+    --palette-slate-500: #64748b;
+    --palette-slate-600: #475569;
+    --palette-slate-700: #334155;
+    --palette-slate-800: #1e293b;
+    --palette-slate-900: #0f172a;
+    --palette-slate-950: #020617;
+
+    /* Color Palette - Functional */
+    --palette-red-500: #ef4444;
+    /* Error */
+    --palette-green-500: #22c55e;
+    /* Success */
+    --palette-amber-500: #f59e0b;
+    /* Warning */
+    --palette-blue-500: #3b82f6;
+    /* Info */
+
+    /* Spacing Scale (4px baseline) */
+    --spacing-1: 0.25rem;
+    /* 4px */
+    --spacing-2: 0.5rem;
+    /* 8px */
+    --spacing-3: 0.75rem;
+    /* 12px */
+    --spacing-4: 1rem;
+    /* 16px */
+    --spacing-5: 1.25rem;
+    /* 20px */
+    --spacing-6: 1.5rem;
+    /* 24px */
+    --spacing-8: 2rem;
+    /* 32px */
+    --spacing-10: 2.5rem;
+    /* 40px */
+    --spacing-12: 3rem;
+    /* 48px */
+
+    /* Radius Scale */
+    --radius-sm: 0.375rem;
+    /* 6px */
+    --radius-md: 0.5rem;
+    /* 8px */
+    --radius-lg: 0.75rem;
+    /* 12px */
+    --radius-xl: 1rem;
+    /* 16px */
+    --radius-2xl: 1.25rem;
+    /* 20px */
+    --radius-full: 9999px;
+
+    /* Shadows */
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    --shadow-dialog: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+
+
+    /* ============================================
+     2. Semantics (Usage Context)
+     ============================================ */
+
+    /* Backgrounds */
+    --bg-page: var(--palette-slate-50);
+    --bg-card: #ffffff;
+    --bg-overlay: #ffffff;
+    --bg-hover: var(--palette-slate-50);
+    --bg-active: var(--palette-slate-100);
+
+    /* Foreground / Text */
+    --text-primary: var(--palette-slate-900);
+    --text-secondary: var(--palette-slate-500);
+    --text-tertiary: var(--palette-slate-400);
+    --text-invert: #ffffff;
+
+    /* Borders */
+    --border-default: var(--palette-slate-200);
+    --border-light: var(--palette-slate-100);
+    --border-hover: var(--palette-slate-300);
+
+    /* Brand / Action */
+    --primary-default: var(--palette-indigo-600);
+    --primary-hover: var(--palette-indigo-700);
+    --primary-active: var(--palette-indigo-800);
+    --primary-light: var(--palette-indigo-50);
+    /* Backgrounds for active states */
+    --primary-text: var(--palette-indigo-600);
+
+    /* Backward-compatible aliases */
+    --primary: var(--primary-default);
+    --primary-dark: var(--palette-indigo-800);
+    --accent: #FFC000;
+    --accent-light: #ffd040;
+    --accent-dark: #e6ad00;
+    --bg-secondary: var(--bg-page);
+    --bg-tertiary: var(--bg-active);
+    --text-muted: var(--text-tertiary);
+    --border-color: var(--border-default);
+    --card-shadow: var(--shadow-md);
+    --ring-color: rgba(99, 102, 241, 0.2);
+}
+
+/* Dark Mode Overrides */
+:root.dark,
+[data-theme="dark"] {
+    /* Backgrounds */
+    --bg-page: var(--palette-slate-950);
+    --bg-card: var(--palette-slate-900);
+    --bg-overlay: var(--palette-slate-800);
+    --bg-hover: var(--palette-slate-800);
+    --bg-active: var(--palette-slate-700);
+
+    /* Foreground / Text */
+    --text-primary: #ffffff;
+    --text-secondary: var(--palette-slate-400);
+    --text-tertiary: var(--palette-slate-500);
+
+    /* Borders */
+    --border-default: var(--palette-slate-800);
+    --border-light: var(--palette-slate-900);
+    --border-hover: var(--palette-slate-700);
+
+    /* Brand / Action */
+    --primary-default: var(--palette-indigo-500);
+    --primary-hover: var(--palette-indigo-400);
+    --primary-active: var(--palette-indigo-600);
+    --primary-light: rgba(99, 102, 241, 0.15);
+    /* Translucent for dark mode */
+    --primary-text: var(--palette-indigo-400);
+
+    /* Shadows - stronger for dark mode depth */
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.3);
+    --shadow-dialog: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.3);
+
+    /* Scrollbar */
+    --scrollbar-track: var(--palette-slate-900);
+    --scrollbar-thumb: var(--palette-slate-700);
+    --scrollbar-thumb-hover: var(--palette-slate-600);
+}
+
+/* ==========================================================================
+   Scrollbar Styling
+   ========================================================================== */
+
+/* Light mode defaults */
+:root {
+    --scrollbar-track: var(--palette-slate-100);
+    --scrollbar-thumb: var(--palette-slate-300);
+    --scrollbar-thumb-hover: var(--palette-slate-400);
+}
+
+/* Webkit (Chrome, Safari, Edge) */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+}
+
+*::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+*::-webkit-scrollbar-track {
+    background: var(--scrollbar-track);
+    border-radius: 3px;
+}
+
+*::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+    border-radius: 3px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+    background: var(--scrollbar-thumb-hover);
+}

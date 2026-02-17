@@ -116,26 +116,35 @@ Test each voice agent by clicking the links below:
 
 ## 🎨 UI Features
 
-### TalkaFlow Brand Colors
-- **Primary Blue:** `#116dff` - Main accent color, buttons, icons
-- **Success Green:** `#008250` - Start call button, connected status
-- **Alert Red:** `#df3131` - End call button, error states
+### Design System
+The UI uses a token-based CSS design system (ported from talkaflow-littlehotelier):
+- **`static/tokens.css`** - Design tokens: color palettes (Indigo primary, Slate neutrals), spacing, radius, shadows, dark mode overrides
+- **`static/base.css`** - Global resets, typography, logo light/dark switching
+- **`static/components.css`** - Reusable component patterns (cards, buttons, inputs, tags)
+
+### Layout
+- Centered 420px card-based interface (mobile-responsive, goes full-width on small screens)
+- Indigo gradient header bar with agent icon, name, and status
+- Top bar with TalkaFlow logo and theme toggle
+- "Powered by TalkaFlow" footer
+
+### Theme Colors
+- **Primary Indigo:** `#4f46e5` - Header gradient, accents, links
+- **Success Green:** `#008250` - Start call button with pulse animation
+- **Error Red:** `#ef4444` - End call button, error states
 
 ### Dark Mode
-- Toggle button in bottom-left corner (moon/sun icon)
+- Sun/moon toggle switch in the top bar
+- Uses `data-theme` attribute with CSS custom properties for seamless theming
+- Light and dark mode logos automatically switch
 - Automatic preference saving via localStorage
-- Smooth transitions between light and dark themes
-- Optimized contrast for readability
 
-### Navigation
-- **Logo:** Clickable link to https://www.talkaflow.com
-- **Home Button:** Circular icon in header for easy navigation
-- Both navigate in the same tab to return to the TalkaFlow homepage
-
-### Status Indicator
-- **Prominent Display:** Moved to main screen for better visibility
-- **Real-time Updates:** Shows connection state (Disconnected, Connecting, Listening, AI Speaking)
-- **Visual Feedback:** Color-coded status dot with descriptive text
+### Voice Call UI
+- Circular 80px call button with pulse animation (green start / red end)
+- Real-time status display: Ready, Connecting, Listening, AI Speaking, Connected
+- Chat-bubble transcript area with user/agent avatars
+- Agent-specific suggestion prompts
+- Collapsible debug panel with download/clear log buttons
 
 ## 📊 Call Logging & Monitoring
 
@@ -168,9 +177,9 @@ Monitor and diagnose call issues in real-time with our comprehensive logging sys
 
 ### Client-Side Features
 Users can also download their own session logs:
-- Click the debug icon (bug button) in bottom-right
-- Click "Download Logs" to export session data
-- Click "Clear Logs" to reset stored logs
+- Click "Debug" link in the footer to expand the debug panel
+- Click "Download" to export session data as a text file
+- Click "Clear" to reset stored logs
 
 ## 🔧 Technical Architecture
 
@@ -199,7 +208,11 @@ User Browser → /hotel → voice-agent.html (loads hotel config)
 ### Core Interface
 - **`voice-agent.html`** - Main dynamic voice interface (supports all agents)
 - **`agents-config.json`** - Agent configurations (names, IDs, icons, suggestions)
-- **`talkaFlow_logo_only.png`** - TalkaFlow branding logo
+- **`static/tokens.css`** - Design tokens (colors, spacing, radius, shadows, dark mode)
+- **`static/base.css`** - Global resets, typography, logo switching
+- **`static/components.css`** - Reusable UI component patterns
+- **`static/talkaFlow_logo_light_mode.png`** - Logo for light theme
+- **`static/talkaFlow_logo_dark_mode.png`** - Logo for dark theme
 
 ### API Endpoints
 - **`api/ultravox.js`** - Serverless API proxy for Ultravox calls

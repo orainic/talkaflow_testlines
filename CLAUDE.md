@@ -40,7 +40,9 @@ vercel deploy
    - Handles microphone access and media permissions
    - Real-time conversation UI with streaming transcripts
    - Debug panel for troubleshooting
-   - TalkaFlow branding with logo
+   - TalkaFlow branding with light/dark mode logos
+   - Design token system (`static/tokens.css`, `static/base.css`, `static/components.css`)
+   - Centered 420px card-based layout with sun/moon theme toggle
 
 2. **Agent Configuration** (`agents-config.json`)
    - Defines 6 different voice agents: hotel, clinic, aftersales, restaurant, hairstudio, hepa
@@ -125,10 +127,15 @@ To add new agents: Update `agents-config.json` and `vercel.json` routing.
 
 - **`voice-agent.html`**: Main dynamic voice interface (supports all agents via URL params)
 - **`agents-config.json`**: Agent configurations (names, IDs, icons, suggestions)
+- **`static/tokens.css`**: Design tokens (colors, spacing, radius, shadows, dark mode)
+- **`static/base.css`**: Global resets, typography, logo light/dark switching
+- **`static/components.css`**: Reusable UI component patterns (cards, buttons, inputs)
+- **`static/talkaFlow_logo_light_mode.png`**: TalkaFlow logo for light theme
+- **`static/talkaFlow_logo_dark_mode.png`**: TalkaFlow logo for dark theme
+- **`static/favicon.ico`**: Favicon
 - **`api/ultravox.js`**: Serverless API proxy for Ultravox calls
 - **`vercel.json`**: Deployment config with URL routing and CORS
-- **`talkaFlow_logo_only.png`**: TalkaFlow branding logo
-- **`Demo_*.json`**: Reference n8n workflows (not actively used)
+- **`talkaFlow_logo_only.png`**: Legacy TalkaFlow branding logo
 - **`AGENT_URLS.md`**: Documentation for embedding agents in Wix
 - **`CLAUDE.md`**: This file - guidance for Claude Code
 - **`README.md`**: Project documentation
