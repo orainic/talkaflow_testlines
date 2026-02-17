@@ -66,8 +66,11 @@ export default async function handler(req, res) {
 
     const agentData = await agentResponse.json();
 
+    // Agent config is nested under callTemplate
+    const tpl = agentData.callTemplate || {};
+
     // Step 2: Replace {{currentDate}} in prompt with current date
-    let prompt = agentData.prompt || '';
+    let prompt = tpl.systemPrompt || '';
     const now = new Date();
     const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
     const currentDate = now.toLocaleDateString('en-US', options);
@@ -79,12 +82,12 @@ export default async function handler(req, res) {
       medium: { webRtc: {} },
     };
 
-    if (agentData.selectedTools) callBody.selectedTools = agentData.selectedTools;
-    if (agentData.voice) callBody.voice = agentData.voice;
-    if (agentData.model) callBody.model = agentData.model;
-    if (agentData.temperature != null) callBody.temperature = agentData.temperature;
-    if (agentData.firstSpeaker) callBody.firstSpeaker = agentData.firstSpeaker;
-    if (agentData.languageHint) callBody.languageHint = agentData.languageHint;
+    if (tpl.selectedTools) callBody.selectedTools = tpl.selectedTools;
+    if (tpl.voice) callBody.voice = tpl.voice;
+    if (tpl.model) callBody.model = tpl.model;
+    if (tpl.temperature != null) callBody.temperature = tpl.temperature;
+    if (tpl.firstSpeaker) callBody.firstSpeaker = tpl.firstSpeaker;
+    if (tpl.languageHint) callBody.languageHint = tpl.languageHint;
 
     // Step 4: Create call with resolved config
     const response = await fetch(
