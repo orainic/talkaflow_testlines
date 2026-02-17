@@ -70,13 +70,14 @@ export default async function handler(req, res) {
     const tpl = agentData.callTemplate || {};
 
     // Step 2: Prepend current date/time to prompt so agents always know today's date
+    // Use Australian Eastern time (AEST/AEDT) since the property is in Queensland
     let prompt = tpl.systemPrompt || '';
     const now = new Date();
-    const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-    const timeOptions = { hour: 'numeric', minute: '2-digit', hour12: true };
+    const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', timeZone: 'Australia/Brisbane' };
+    const timeOptions = { hour: 'numeric', minute: '2-digit', hour12: true, timeZone: 'Australia/Brisbane' };
     const currentDate = now.toLocaleDateString('en-US', dateOptions);
     const currentTime = now.toLocaleTimeString('en-US', timeOptions);
-    const datePrefix = `[Current date and time: ${currentDate}, ${currentTime}]\n\n`;
+    const datePrefix = `[Current date and time in Australia: ${currentDate}, ${currentTime} AEST]\n\n`;
     prompt = datePrefix + prompt;
     // Also replace any {{currentDate}} template variable if present
     prompt = prompt.replace('{{currentDate}}', currentDate);
