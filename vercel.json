@@ -25,6 +25,18 @@
     {
       "source": "/api/logs",
       "destination": "/api/logs.js"
+    },
+    {
+      "source": "/api/checkAvailability",
+      "destination": "/api/checkAvailability.js"
+    },
+    {
+      "source": "/api/getPropertyInfo",
+      "destination": "/api/getPropertyInfo.js"
+    },
+    {
+      "source": "/api/createBooking",
+      "destination": "/api/createBooking.js"
     }
   ],
   "headers": [
