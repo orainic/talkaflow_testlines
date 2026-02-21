@@ -408,7 +408,7 @@
             if (queryAgent) return queryAgent;
 
             const path = window.location.pathname;
-            const pathMatch = path.match(/\/(hotel|clinic|aftersales|restaurant|hairstudio|hepa|dental|littlehotelier)/);
+            const pathMatch = path.match(/\/(hotel|clinic|aftersales|restaurant|hairstudio|hepa|dental|littlehotelier|superclinic)/);
             if (pathMatch) return pathMatch[1];
 
             return 'hotel';
