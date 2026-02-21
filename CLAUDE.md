@@ -106,6 +106,7 @@ See `agents-config.json` for full configuration. Current agents:
 4. **Restaurant** (`badeb30e-22d3-49c9-ad58-ff029473f796`) - Dining reservations
 5. **Hair Studio** (`056b0abf-b196-4a3d-80ec-a33371f7e13e`) - L'Artisan salon bookings
 6. **HEPA** (`d92f1c3b-1ee3-4ff5-86c9-ebe18b5b3bcd`) - Maintenance support
+7. **Superclinic** (`fa59f1dd-5614-4008-9bb9-1f49b7ececcc`) - St Germain Superclinic
 
 To add new agents: Update `agents-config.json` and `vercel.json` routing.
 

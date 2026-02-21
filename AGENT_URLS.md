@@ -39,7 +39,12 @@ Each agent has a dedicated URL for easy embedding in your Wix website:
 - **Agent**: Dental Specialists
 - **Use Case**: Dental appointment booking, emergency dental care
 
-### 8. Hotel Booking (Little Hotelier)
+### 8. Superclinic Reception
+- **URL**: https://talkaflow-testlines.vercel.app/superclinic
+- **Agent**: St Germain Superclinic
+- **Use Case**: Medical appointment booking, clinic inquiries
+
+### 9. Hotel Booking (Little Hotelier)
 - **URL**: https://talkaflow-testlines.vercel.app/littlehotelier
 - **Agent**: Arkana Motel (Little Hotelier)
 - **Use Case**: Room booking, availability checking, property info

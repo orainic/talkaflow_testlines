@@ -118,5 +118,20 @@
       "I want to check in tomorrow",
       "Do you have parking available?"
     ]
+  },
+  "superclinic": {
+    "id": "fa59f1dd-5614-4008-9bb9-1f49b7ececcc",
+    "name": "St Germain Superclinic",
+    "title": "Superclinic Reception",
+    "description": "AI receptionist for St Germain Superclinic",
+    "icon": "fa-hospital",
+    "suggestions": [
+      "I'd like to book an appointment",
+      "What are your opening hours?",
+      "I need to see a doctor",
+      "Do you accept walk-ins?",
+      "I need to cancel my appointment",
+      "What services do you offer?"
+    ]
   }
 }
