@@ -4,10 +4,10 @@
   "rewrites": [
     {
       "source": "/",
-      "destination": "/voice-agent.html"
+      "destination": "/index.html"
     },
     {
-      "source": "/:agent(hotel|clinic|aftersales|restaurant|hairstudio|hepa|dental|littlehotelier|superclinic)",
+      "source": "/:agent(hotel|clinic|aftersales|restaurant|hairstudio|hepa|dental|littlehotelier|superclinic|mentalhealth)",
       "destination": "/voice-agent.html"
     },
     {

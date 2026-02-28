@@ -291,9 +291,14 @@
     <div class="page-wrapper">
         <!-- Top bar: logo + theme toggle -->
         <div class="top-bar">
-            <div class="logo-container">
-                <img src="/static/talkaFlow_logo_light_mode.png" alt="TalkaFlow" class="logo-light">
-                <img src="/static/talkaFlow_logo_dark_mode.png" alt="TalkaFlow" class="logo-dark">
+            <div style="display:flex; align-items:center; gap:var(--spacing-3);">
+                <a href="/" title="All Agents" style="color:var(--text-secondary); display:flex; align-items:center; font-size:1.1rem;">
+                    <i class="fas fa-arrow-left"></i>
+                </a>
+                <a href="/" class="logo-container">
+                    <img src="/static/talkaFlow_logo_light_mode.png" alt="TalkaFlow" class="logo-light">
+                    <img src="/static/talkaFlow_logo_dark_mode.png" alt="TalkaFlow" class="logo-dark">
+                </a>
             </div>
             <div class="theme-toggle" onclick="toggleTheme()">
                 <div class="theme-track">
@@ -408,7 +413,7 @@
             if (queryAgent) return queryAgent;
 
             const path = window.location.pathname;
-            const pathMatch = path.match(/\/(hotel|clinic|aftersales|restaurant|hairstudio|hepa|dental|littlehotelier|superclinic)/);
+            const pathMatch = path.match(/\/(hotel|clinic|aftersales|restaurant|hairstudio|hepa|dental|littlehotelier|superclinic|mentalhealth)/);
             if (pathMatch) return pathMatch[1];
 
             return 'hotel';

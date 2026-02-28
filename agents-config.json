@@ -133,5 +133,20 @@
       "I need to cancel my appointment",
       "What services do you offer?"
     ]
+  },
+  "mentalhealth": {
+    "id": "79470696-55ef-4ed1-b51b-9559823641b8",
+    "name": "Teen Mental Health Support",
+    "title": "Mental Health Support",
+    "description": "Mental health support system for teenagers",
+    "icon": "fa-brain",
+    "suggestions": [
+      "I'm feeling stressed",
+      "I need someone to talk to",
+      "How can I manage anxiety?",
+      "I'm having trouble sleeping",
+      "I feel overwhelmed with school",
+      "Can you help me feel better?"
+    ]
   }
 }

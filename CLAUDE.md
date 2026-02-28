@@ -34,7 +34,14 @@ vercel deploy
 
 ### Components
 
-1. **Dynamic Voice Interface** (`voice-agent.html`)
+1. **Agent Landing Page** (`index.html`)
+   - Root `/` URL displays all available agents as clickable cards
+   - Dynamically loads agents from `agents-config.json`
+   - Responsive grid layout (1 col mobile, 2-3 cols desktop)
+   - TalkaFlow branding with light/dark theme toggle
+   - Cards link to clean URLs (`/hotel`, `/clinic`, etc.) on Vercel, query params locally
+
+2. **Dynamic Voice Interface** (`voice-agent.html`)
    - Single HTML file supporting multiple agents via URL parameters
    - Direct browser-to-Ultravox WebSocket connections
    - Handles microphone access and media permissions
@@ -45,7 +52,7 @@ vercel deploy
    - Centered 420px card-based layout with sun/moon theme toggle
 
 2. **Agent Configuration** (`agents-config.json`)
-   - Defines 6 different voice agents: hotel, clinic, aftersales, restaurant, hairstudio, hepa
+   - Defines all voice agents: hotel, clinic, aftersales, restaurant, hairstudio, hepa, dental, littlehotelier, superclinic, mentalhealth
    - Each agent has: ID, name, title, description, icon, and suggestion prompts
    - Easily extensible for new agents
 
@@ -68,9 +75,13 @@ vercel deploy
 ### Data Flow
 
 ```
-1. User accesses URL (e.g., /hotel)
+1. User accesses root URL (/)
    ↓
-2. Browser loads voice-agent.html with ?agent=hotel
+2. Browser loads index.html → shows all agents as cards
+   ↓
+3. User clicks an agent card (e.g., /hotel)
+   ↓
+4. Browser loads voice-agent.html with ?agent=hotel
    ↓
 3. JavaScript fetches agents-config.json
    ↓
@@ -107,8 +118,9 @@ See `agents-config.json` for full configuration. Current agents:
 5. **Hair Studio** (`056b0abf-b196-4a3d-80ec-a33371f7e13e`) - L'Artisan salon bookings
 6. **HEPA** (`d92f1c3b-1ee3-4ff5-86c9-ebe18b5b3bcd`) - Maintenance support
 7. **Superclinic** (`fa59f1dd-5614-4008-9bb9-1f49b7ececcc`) - St Germain Superclinic
+8. **Mental Health** (`79470696-55ef-4ed1-b51b-9559823641b8`) - Teen mental health support
 
-To add new agents: Update `agents-config.json` and `vercel.json` routing.
+To add new agents: Update `agents-config.json`, `vercel.json` routing, and `voice-agent.html` path regex.
 
 ## Common Issues & Solutions
 
@@ -126,6 +138,7 @@ To add new agents: Update `agents-config.json` and `vercel.json` routing.
 
 ## File Structure
 
+- **`index.html`**: Agent landing page with responsive card grid (root `/` URL)
 - **`voice-agent.html`**: Main dynamic voice interface (supports all agents via URL params)
 - **`agents-config.json`**: Agent configurations (names, IDs, icons, suggestions)
 - **`static/tokens.css`**: Design tokens (colors, spacing, radius, shadows, dark mode)

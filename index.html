@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TalkaFlow Voice AI</title>
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+    <link rel="stylesheet" href="/static/tokens.css">
+    <link rel="stylesheet" href="/static/base.css">
+    <link rel="stylesheet" href="/static/components.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        (function(){
+            var t = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', t);
+            if (t === 'dark') document.documentElement.classList.add('dark');
+        })();
+    </script>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+            padding: var(--spacing-8) var(--spacing-4);
+        }
+
+        .page-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: var(--spacing-6);
+            width: 100%;
+            max-width: 900px;
+        }
+
+        /* Top bar: logo + toggle */
+        .top-bar {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .top-bar .logo-container { height: 28px; }
+
+        /* Theme toggle */
+        .theme-toggle { cursor: pointer; user-select: none; }
+        .theme-track {
+            position: relative; width: 48px; height: 24px; border-radius: 12px;
+            background: var(--palette-slate-300); transition: background-color 0.3s;
+        }
+        [data-theme="dark"] .theme-track { background: var(--palette-indigo-600); }
+        .theme-thumb {
+            width: 20px; height: 20px; border-radius: 50%; background: #fff;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3); position: absolute; top: 2px; left: 2px;
+            transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+        }
+        .theme-icon {
+            position: absolute; top: 50%; transform: translateY(-50%);
+            width: 16px; height: 16px; display: flex; align-items: center;
+            justify-content: center; transition: opacity 0.2s;
+        }
+        .theme-icon-sun { left: 4px; color: #f59e0b; }
+        .theme-icon-moon { right: 4px; color: #a5b4fc; opacity: 0; }
+
+        /* Page heading */
+        .page-heading {
+            text-align: center;
+        }
+        .page-heading h1 {
+            font-size: 1.75rem;
+            margin-bottom: var(--spacing-2);
+        }
+        .page-heading p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin: 0;
+        }
+
+        /* Agent grid */
+        .agent-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: var(--spacing-5);
+            width: 100%;
+        }
+
+        /* Agent card */
+        .agent-card {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-3);
+            text-decoration: none;
+            color: inherit;
+            cursor: pointer;
+            padding: var(--spacing-6);
+        }
+        .agent-card:hover {
+            box-shadow: var(--shadow-md);
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .agent-card .agent-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: var(--radius-lg);
+            background: var(--primary-light);
+            color: var(--primary-text);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+
+        .agent-card .agent-name {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 0;
+        }
+
+        .agent-card .agent-title {
+            font-size: 0.8rem;
+            color: var(--primary-text);
+            font-weight: 500;
+            margin: 0;
+        }
+
+        .agent-card .agent-desc {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin: 0;
+            line-height: 1.4;
+        }
+
+        .agent-card .start-link {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--spacing-2);
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--primary-text);
+            margin-top: auto;
+        }
+        .agent-card:hover .start-link {
+            color: var(--primary-hover);
+        }
+
+        /* Responsive: single column on small screens */
+        @media (max-width: 600px) {
+            body {
+                padding: var(--spacing-5) var(--spacing-3);
+            }
+            .agent-grid {
+                grid-template-columns: 1fr;
+            }
+            .page-heading h1 {
+                font-size: 1.4rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page-wrapper">
+        <!-- Top bar: logo + theme toggle -->
+        <div class="top-bar">
+            <div class="logo-container">
+                <img src="/static/talkaFlow_logo_light_mode.png" alt="TalkaFlow" class="logo-light">
+                <img src="/static/talkaFlow_logo_dark_mode.png" alt="TalkaFlow" class="logo-dark">
+            </div>
+            <div class="theme-toggle" onclick="toggleTheme()">
+                <div class="theme-track">
+                    <div class="theme-icon theme-icon-sun" id="icon-sun">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                    </div>
+                    <div class="theme-icon theme-icon-moon" id="icon-moon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                    </div>
+                    <div class="theme-thumb" id="theme-thumb"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Page heading -->
+        <div class="page-heading">
+            <h1>Voice AI Agents</h1>
+            <p>Choose an agent to start a voice conversation</p>
+        </div>
+
+        <!-- Agent cards grid -->
+        <div class="agent-grid" id="agentGrid"></div>
+    </div>
+
+    <script>
+        // ========== Theme Toggle ==========
+        function toggleTheme() {
+            var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+            var newTheme = isDark ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            document.documentElement.classList.toggle('dark', newTheme === 'dark');
+            localStorage.setItem('theme', newTheme);
+            syncToggleUI(newTheme === 'dark');
+        }
+        function syncToggleUI(isDark) {
+            var thumb = document.getElementById('theme-thumb');
+            var sun = document.getElementById('icon-sun');
+            var moon = document.getElementById('icon-moon');
+            if (thumb) thumb.style.transform = isDark ? 'translateX(24px)' : 'translateX(0)';
+            if (sun) sun.style.opacity = isDark ? '0' : '1';
+            if (moon) moon.style.opacity = isDark ? '1' : '0';
+        }
+        document.addEventListener('DOMContentLoaded', function() {
+            syncToggleUI(document.documentElement.getAttribute('data-theme') === 'dark');
+        });
+
+        // ========== Load Agents ==========
+        fetch('agents-config.json')
+            .then(function(res) { return res.json(); })
+            .then(function(agents) {
+                var grid = document.getElementById('agentGrid');
+                Object.keys(agents).forEach(function(key) {
+                    var agent = agents[key];
+                    var card = document.createElement('a');
+                    // Use clean URLs on Vercel, query params for local dev
+                    var isLocal = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+                    card.href = isLocal ? '/voice-agent.html?agent=' + key : '/' + key;
+                    card.className = 'card agent-card';
+
+                    card.innerHTML =
+                        '<div class="agent-icon"><i class="fas ' + agent.icon + '"></i></div>' +
+                        '<p class="agent-name">' + agent.name + '</p>' +
+                        '<p class="agent-title">' + agent.title + '</p>' +
+                        '<p class="agent-desc">' + agent.description + '</p>' +
+                        '<span class="start-link"><i class="fas fa-phone-alt"></i> Start Call</span>';
+
+                    grid.appendChild(card);
+                });
+            })
+            .catch(function(err) {
+                console.error('Failed to load agents:', err);
+                document.getElementById('agentGrid').innerHTML =
+                    '<p style="color: var(--text-secondary); text-align: center; grid-column: 1 / -1;">Failed to load agents. Please refresh the page.</p>';
+            });
+    </script>
+</body>
+</html>
