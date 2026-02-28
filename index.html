@@ -147,6 +147,22 @@
             color: var(--primary-hover);
         }
 
+        /* Footer */
+        .site-footer {
+            width: 100%;
+            text-align: center;
+            padding: var(--spacing-6) 0 var(--spacing-2);
+            font-size: 0.8rem;
+            color: var(--text-tertiary);
+        }
+        .site-footer a {
+            color: var(--text-tertiary);
+            text-decoration: underline;
+        }
+        .site-footer a:hover {
+            color: var(--primary-text);
+        }
+
         /* Responsive: single column on small screens */
         @media (max-width: 600px) {
             body {
@@ -165,10 +181,10 @@
     <div class="page-wrapper">
         <!-- Top bar: logo + theme toggle -->
         <div class="top-bar">
-            <div class="logo-container">
+            <a href="https://www.talkaflow.com/" target="_blank" class="logo-container">
                 <img src="/static/talkaFlow_logo_light_mode.png" alt="TalkaFlow" class="logo-light">
                 <img src="/static/talkaFlow_logo_dark_mode.png" alt="TalkaFlow" class="logo-dark">
-            </div>
+            </a>
             <div class="theme-toggle" onclick="toggleTheme()">
                 <div class="theme-track">
                     <div class="theme-icon theme-icon-sun" id="icon-sun">
@@ -190,6 +206,11 @@
 
         <!-- Agent cards grid -->
         <div class="agent-grid" id="agentGrid"></div>
+
+        <!-- Footer -->
+        <footer class="site-footer">
+            &copy; 2025 by <a href="https://www.talkaflow.com/" target="_blank">talkaFlow</a>. Powered and secured by <a href="https://www.talkaflow.com/" target="_blank">talkaFlow</a>.
+        </footer>
     </div>
 
     <script>
