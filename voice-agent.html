@@ -9,11 +9,13 @@
     <link rel="stylesheet" href="/static/base.css">
     <link rel="stylesheet" href="/static/components.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="/static/i18n.js"></script>
     <script>
         (function(){
             var t = localStorage.getItem('theme') || 'light';
             document.documentElement.setAttribute('data-theme', t);
             if (t === 'dark') document.documentElement.classList.add('dark');
+            document.documentElement.setAttribute('lang', i18n.getLang());
         })();
     </script>
     <style>
@@ -40,6 +42,29 @@
         }
 
         .top-bar .logo-container { height: 28px; }
+
+        .top-bar-right {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-3);
+        }
+
+        /* Language selector */
+        .lang-select {
+            appearance: none;
+            -webkit-appearance: none;
+            background: var(--bg-card);
+            border: 1px solid var(--border-default);
+            border-radius: var(--radius-md);
+            padding: 2px 22px 2px 8px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            cursor: pointer;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23666'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 6px center;
+        }
 
         /* Theme toggle */
         .theme-toggle { cursor: pointer; user-select: none; }
@@ -292,7 +317,7 @@
         <!-- Top bar: logo + theme toggle -->
         <div class="top-bar">
             <div style="display:flex; align-items:center; gap:var(--spacing-3);">
-                <a href="/" title="All Agents" style="color:var(--text-secondary); display:flex; align-items:center; font-size:1.1rem;">
+                <a href="/" id="backLink" title="All Agents" style="color:var(--text-secondary); display:flex; align-items:center; font-size:1.1rem;">
                     <i class="fas fa-arrow-left"></i>
                 </a>
                 <a href="https://www.talkaflow.com/" target="_blank" class="logo-container">
@@ -300,15 +325,21 @@
                     <img src="/static/talkaFlow_logo_dark_mode.png" alt="TalkaFlow" class="logo-dark">
                 </a>
             </div>
-            <div class="theme-toggle" onclick="toggleTheme()">
-                <div class="theme-track">
-                    <div class="theme-icon theme-icon-sun" id="icon-sun">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+            <div class="top-bar-right">
+                <select id="langSelect" class="lang-select" onchange="switchLang(this.value)">
+                    <option value="en">EN</option>
+                    <option value="zh">中文</option>
+                </select>
+                <div class="theme-toggle" onclick="toggleTheme()">
+                    <div class="theme-track">
+                        <div class="theme-icon theme-icon-sun" id="icon-sun">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                        </div>
+                        <div class="theme-icon theme-icon-moon" id="icon-moon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                        </div>
+                        <div class="theme-thumb" id="theme-thumb"></div>
                     </div>
-                    <div class="theme-icon theme-icon-moon" id="icon-moon">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-                    </div>
-                    <div class="theme-thumb" id="theme-thumb"></div>
                 </div>
             </div>
         </div>
@@ -342,17 +373,17 @@
 
                 <!-- Suggestions -->
                 <div class="suggestions" id="suggestions">
-                    <p class="label"><i class="fas fa-lightbulb"></i> Try saying:</p>
+                    <p class="label"><i class="fas fa-lightbulb"></i> <span id="trySayingLabel">Try saying:</span></p>
                     <div id="suggestionsList"></div>
                 </div>
 
                 <!-- Transcript -->
                 <div class="transcript-section">
                     <div class="transcript-title">
-                        <i class="fas fa-comments"></i> Conversation
+                        <i class="fas fa-comments"></i> <span id="conversationLabel">Conversation</span>
                     </div>
                     <div class="transcript-area" id="transcript">
-                        <div class="transcript-placeholder">
+                        <div class="transcript-placeholder" id="transcriptPlaceholder">
                             <i class="fas fa-microphone"></i>
                             Start a call to speak with the AI assistant
                         </div>
@@ -362,10 +393,10 @@
                 <!-- Debug -->
                 <div class="debug-panel hidden" id="debug-panel">
                     <h4>
-                        <span>Debug Log</span>
+                        <span id="debugLogLabel">Debug Log</span>
                         <div class="debug-actions">
-                            <button class="btn-download" id="downloadLogsBtn" title="Download logs"><i class="fas fa-download"></i> Download</button>
-                            <button class="btn-clear" id="clearLogsBtn" title="Clear logs"><i class="fas fa-trash"></i> Clear</button>
+                            <button class="btn-download" id="downloadLogsBtn" title="Download logs"><i class="fas fa-download"></i> <span id="downloadLabel">Download</span></button>
+                            <button class="btn-clear" id="clearLogsBtn" title="Clear logs"><i class="fas fa-trash"></i> <span id="clearLabel">Clear</span></button>
                         </div>
                     </h4>
                     <div class="debug-log" id="debug-log"></div>
@@ -374,10 +405,10 @@
 
             <!-- Footer -->
             <div class="nav-links">
-                <a href="#" id="debug-toggle"><i class="fas fa-bug"></i> Debug</a>
+                <a href="#" id="debug-toggle"><i class="fas fa-bug"></i> <span id="debugLinkLabel">Debug</span></a>
             </div>
 
-            <div class="powered-by">&copy; 2025 Powered and secured by <a href="https://www.talkaflow.com/" target="_blank">talkaFlow</a>.</div>
+            <div class="powered-by" id="poweredBy">&copy; 2025 Powered and secured by <a href="https://www.talkaflow.com/" target="_blank">talkaFlow</a>.</div>
         </div>
     </div>
 
@@ -401,7 +432,40 @@
         }
         document.addEventListener('DOMContentLoaded', function() {
             syncToggleUI(document.documentElement.getAttribute('data-theme') === 'dark');
+
+            // Set language selector to current language
+            var langSelect = document.getElementById('langSelect');
+            if (langSelect) langSelect.value = i18n.getLang();
         });
+
+        // ========== Language Toggle ==========
+        function switchLang(lang) {
+            i18n.setLang(lang);
+            applyVoiceTranslations();
+            if (agentConfig) updateAgentInfo();
+            if (!isConnected) {
+                setStatus(i18n.t('ready'), i18n.t('readySub'));
+                updateCallButton();
+            }
+        }
+
+        function applyVoiceTranslations() {
+            document.getElementById('trySayingLabel').textContent = i18n.t('trySaying');
+            document.getElementById('conversationLabel').textContent = i18n.t('conversation');
+            document.getElementById('debugLogLabel').textContent = i18n.t('debugLog');
+            document.getElementById('downloadLabel').textContent = i18n.t('download');
+            document.getElementById('clearLabel').textContent = i18n.t('clear');
+            document.getElementById('debugLinkLabel').textContent = i18n.t('debug');
+            document.getElementById('backLink').title = i18n.t('allAgents');
+
+            var placeholder = document.getElementById('transcriptPlaceholder');
+            if (placeholder) {
+                placeholder.innerHTML = '<i class="fas fa-microphone"></i> ' + i18n.t('transcriptPlaceholder');
+            }
+
+            document.getElementById('poweredBy').innerHTML =
+                i18n.t('footerText') + ' <a href="https://www.talkaflow.com/" target="_blank">' + i18n.t('footerBrand') + '</a>.';
+        }
 
         // ========== Agent Config ==========
         let agentConfig = null;
@@ -442,16 +506,21 @@
         function updateAgentInfo() {
             if (!agentConfig) return;
 
-            document.title = `${agentConfig.name} - TalkaFlow Voice AI`;
-            document.getElementById('pageTitle').textContent = `${agentConfig.name} - TalkaFlow`;
-            document.getElementById('agentName').textContent = agentConfig.name;
-            document.getElementById('agentTitle').textContent = agentConfig.title;
+            var name = i18n.agentField(agentConfig, 'name');
+            var title = i18n.agentField(agentConfig, 'title');
+
+            document.title = `${name} - TalkaFlow Voice AI`;
+            document.getElementById('pageTitle').textContent = `${name} - TalkaFlow`;
+            document.getElementById('agentName').textContent = name;
+            document.getElementById('agentTitle').textContent = title;
             document.getElementById('agentIcon').className = `fas ${agentConfig.icon}`;
 
             // Update suggestions
+            var suggestions = i18n.getLang() === 'zh' && agentConfig.suggestions_zh
+                ? agentConfig.suggestions_zh : agentConfig.suggestions;
             const suggestionsList = document.getElementById('suggestionsList');
             suggestionsList.innerHTML = '';
-            agentConfig.suggestions.forEach(suggestion => {
+            suggestions.forEach(suggestion => {
                 const p = document.createElement('p');
                 p.textContent = `"${suggestion}"`;
                 suggestionsList.appendChild(p);
@@ -617,11 +686,11 @@
                 callBtn.disabled = false;
                 callBtn.classList.add('active');
                 callIcon.className = 'fas fa-phone-slash';
-                callLabel.textContent = 'End Call';
+                callLabel.textContent = i18n.t('endCall');
             } else {
                 callBtn.classList.remove('active');
                 callIcon.className = 'fas fa-phone';
-                callLabel.textContent = 'Start Call';
+                callLabel.textContent = i18n.t('startCall');
                 callBtn.disabled = typeof UltravoxSession === 'undefined' || !agentConfig;
             }
         }
@@ -643,7 +712,7 @@
             transcriptEl.innerHTML = '';
             let prevSpeaker = null;
             let currentDiv = null;
-            const agentName = agentConfig ? agentConfig.name : 'AI';
+            const agentName = agentConfig ? i18n.agentField(agentConfig, 'name') : 'AI';
 
             valid.forEach(t => {
                 const isUser = t.speaker === 'user';
@@ -657,7 +726,7 @@
                             <i class="fas ${isUser ? 'fa-user' : 'fa-headset'}"></i>
                         </div>
                         <div>
-                            <div class="transcript-speaker ${isUser ? 'user-name' : 'agent-name'}">${isUser ? 'You' : agentName}</div>
+                            <div class="transcript-speaker ${isUser ? 'user-name' : 'agent-name'}">${isUser ? i18n.t('you') : agentName}</div>
                             <div class="transcript-text msg-text"></div>
                         </div>`;
                     transcriptEl.appendChild(div);
@@ -679,7 +748,7 @@
                 transcriptEl.innerHTML = '';
             }
             const isUser = speaker === 'user';
-            const agentName = agentConfig ? agentConfig.name : 'AI';
+            const agentDisplayName = agentConfig ? i18n.agentField(agentConfig, 'name') : 'AI';
             const div = document.createElement('div');
             div.className = `transcript-msg ${isUser ? 'user-msg' : 'agent-msg'}`;
             div.innerHTML = `
@@ -687,7 +756,7 @@
                     <i class="fas ${isUser ? 'fa-user' : 'fa-headset'}"></i>
                 </div>
                 <div>
-                    <div class="transcript-speaker ${isUser ? 'user-name' : 'agent-name'}">${isUser ? 'You' : agentName}</div>
+                    <div class="transcript-speaker ${isUser ? 'user-name' : 'agent-name'}">${isUser ? i18n.t('you') : agentDisplayName}</div>
                     <div class="transcript-text msg-text">${text}</div>
                 </div>`;
             transcriptEl.appendChild(div);
@@ -734,15 +803,15 @@
                 log(`Session ID: ${currentSessionId}`, 'info');
                 log(`Agent: ${agentConfig.name} (${agentConfig.id})`, 'info');
                 log('Starting voice call...');
-                setStatus('Connecting...', 'Setting up voice connection');
+                setStatus(i18n.t('connecting'), i18n.t('connectingSub'));
                 callBtn.disabled = true;
 
                 if (typeof UltravoxSession === 'undefined') {
-                    throw new Error('Voice SDK not loaded. Please refresh the page.');
+                    throw new Error(i18n.t('sdkNotLoaded'));
                 }
 
                 if (!agentConfig) {
-                    throw new Error('Agent configuration not loaded. Please refresh the page.');
+                    throw new Error(i18n.t('agentNotLoaded'));
                 }
 
                 // Request microphone
@@ -770,7 +839,7 @@
                     audioStream = stream;
                 } catch (micError) {
                     log(`Microphone permission denied: ${micError.message}`, 'error');
-                    throw new Error('Microphone access required for voice calls. Please allow microphone access and try again.');
+                    throw new Error(i18n.t('micRequired'));
                 }
 
                 // Create call
@@ -783,9 +852,9 @@
                 session.addEventListener('status', () => {
                     const s = session.status;
                     log(`Status: ${s}`);
-                    if (s === 'listening') setStatus('Listening', 'Speak now...');
-                    else if (s === 'speaking') setStatus('AI Speaking', agentConfig ? `${agentConfig.name} is responding` : 'AI is responding');
-                    else if (s === 'idle' || s === 'connected') setStatus('Connected', 'Call active');
+                    if (s === 'listening') setStatus(i18n.t('listening'), i18n.t('listeningSub'));
+                    else if (s === 'speaking') setStatus(i18n.t('aiSpeaking'), agentConfig ? `${i18n.agentField(agentConfig, 'name')} ${i18n.t('aiSpeakingSub')}` : i18n.t('aiSpeakingSub'));
+                    else if (s === 'idle' || s === 'connected') setStatus(i18n.t('connected'), i18n.t('connectedSub'));
                     else if (s === 'disconnected') endCallUI();
 
                     isConnected = s !== 'disconnected';
@@ -828,10 +897,10 @@
                     if (isConnected) {
                         const wasShort = callStartTime && (Date.now() - callStartTime < 10000);
                         if (wasShort) {
-                            addMessage('agent', 'Call ended shortly after greeting. This may be due to: (1) No microphone input detected, (2) Agent timeout, or (3) Network issue. Please ensure your microphone is working and try again.');
+                            addMessage('agent', i18n.t('shortCallMsg'));
                             log('Short call detected - likely microphone or agent timeout issue', 'error');
                         } else {
-                            addMessage('agent', 'Call disconnected unexpectedly. Please check your internet connection and microphone permissions.');
+                            addMessage('agent', i18n.t('unexpectedDisconnect'));
                         }
                     }
 
@@ -865,20 +934,20 @@
                 callBtn.disabled = false;
                 callBtn.classList.add('active');
                 callIcon.className = 'fas fa-phone-slash';
-                callLabel.textContent = 'End Call';
+                callLabel.textContent = i18n.t('endCall');
                 suggestionsEl.classList.add('hidden');
-                setStatus('Connected', 'Call active - speak now');
+                setStatus(i18n.t('connected'), i18n.t('connectedSubSpeak'));
 
             } catch (error) {
                 log('=== CALL FAILED TO START ===', 'error');
                 log(`Error: ${error.message}`, 'error');
                 log(`Error stack: ${error.stack}`, 'error');
                 log(`Session ID: ${currentSessionId}`, 'error');
-                setStatus('Error', error.message);
+                setStatus(i18n.t('error'), error.message);
                 endCallUI();
                 currentSessionId = null;
                 callStartTime = null;
-                alert(`Failed to start call: ${error.message}`);
+                alert(`${i18n.t('failedToStart')} ${error.message}`);
             }
         }
 
@@ -907,7 +976,7 @@
                 log('Call ended successfully', 'success');
                 log(`Session ID: ${currentSessionId}`, 'info');
 
-                addMessage('agent', `Thank you for contacting ${agentConfig ? agentConfig.name : 'us'}. Have a wonderful day!`);
+                addMessage('agent', `${i18n.t('thankYou')} ${agentConfig ? i18n.agentField(agentConfig, 'name') : 'us'}${i18n.t('haveAWonderfulDay')}`);
 
                 currentSessionId = null;
                 callStartTime = null;
@@ -923,9 +992,9 @@
             callBtn.disabled = false;
             callBtn.classList.remove('active');
             callIcon.className = 'fas fa-phone';
-            callLabel.textContent = 'Start Call';
+            callLabel.textContent = i18n.t('startCall');
             suggestionsEl.classList.remove('hidden');
-            setStatus('Call Ended', 'Click to start a new call');
+            setStatus(i18n.t('callEnded'), i18n.t('callEndedSub'));
             updateCallButton();
         }
 
@@ -944,7 +1013,7 @@
         });
 
         document.getElementById('clearLogsBtn').addEventListener('click', () => {
-            if (confirm('Are you sure you want to clear all saved call logs? This cannot be undone.')) {
+            if (confirm(i18n.t('clearConfirm'))) {
                 clearStoredLogs();
                 log('All logs cleared from storage', 'success');
             }
@@ -958,7 +1027,7 @@
         window.addEventListener('offline', () => {
             log('Network connection lost!', 'error');
             if (session && isConnected) {
-                alert('Network connection lost. The call may disconnect.');
+                alert(i18n.t('networkLost'));
             }
         });
 
@@ -995,6 +1064,9 @@
                 log(`Newest log: ${storedLogs[storedLogs.length - 1].fullTimestamp}`);
             }
 
+            applyVoiceTranslations();
+            setStatus(i18n.t('ready'), i18n.t('readySub'));
+
             log('Loading voice processing SDK...');
             try {
                 const loaded = await window.loadSDK();
@@ -1003,7 +1075,7 @@
                     updateCallButton();
                 } else {
                     log('Failed to load voice SDK', 'error');
-                    setStatus('Error', 'Voice SDK could not load');
+                    setStatus(i18n.t('error'), i18n.t('sdkError'));
                 }
             } catch (error) {
                 log(`SDK error: ${error.message}`, 'error');

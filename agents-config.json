@@ -2,8 +2,11 @@
   "hotel": {
     "id": "f6dd7bbb-ae88-4ebc-addf-d0a2203f9555",
     "name": "DoubleTree Auckland Karaka",
+    "name_zh": "奥克兰卡拉卡希尔顿逸林酒店",
     "title": "Hotel Guest Services",
+    "title_zh": "酒店宾客服务",
     "description": "AI-powered hotel concierge for guest services",
+    "description_zh": "AI智能酒店礼宾服务",
     "icon": "fa-hotel",
     "suggestions": [
       "I need room service",
@@ -12,13 +15,24 @@
       "What's nearby to visit?",
       "I have a maintenance issue",
       "I need a wake-up call"
+    ],
+    "suggestions_zh": [
+      "我需要客房服务",
+      "你们有哪些设施？",
+      "我需要客房清洁",
+      "附近有什么好玩的？",
+      "我有一个维修问题",
+      "我需要叫醒服务"
     ]
   },
   "clinic": {
     "id": "2e187b77-75b4-4d33-97dc-78675babac81",
     "name": "Medical Clinic",
+    "name_zh": "医疗诊所",
     "title": "GP Clinic Reception",
+    "title_zh": "全科诊所前台",
     "description": "AI receptionist for medical appointments",
+    "description_zh": "AI智能医疗预约接待",
     "icon": "fa-stethoscope",
     "suggestions": [
       "I'd like to book an appointment",
@@ -27,13 +41,24 @@
       "Do you accept walk-ins?",
       "I need to cancel my appointment",
       "What services do you offer?"
+    ],
+    "suggestions_zh": [
+      "我想预约挂号",
+      "你们的营业时间是什么？",
+      "我需要看医生",
+      "你们接受无预约就诊吗？",
+      "我需要取消预约",
+      "你们提供哪些服务？"
     ]
   },
   "aftersales": {
     "id": "d92f1c3b-1ee3-4ff5-86c9-ebe18b5b3bcd",
     "name": "Powerbay Support",
+    "name_zh": "Powerbay 售后支持",
     "title": "After-Sales Support",
+    "title_zh": "售后服务支持",
     "description": "Customer support for product assistance",
+    "description_zh": "产品售后客户支持",
     "icon": "fa-headset",
     "suggestions": [
       "I need help with my product",
@@ -42,13 +67,24 @@
       "What's your warranty policy?",
       "I have a technical question",
       "How do I track my order?"
+    ],
+    "suggestions_zh": [
+      "我的产品需要帮助",
+      "如何退货？",
+      "我的产品无法使用",
+      "你们的保修政策是什么？",
+      "我有一个技术问题",
+      "如何追踪我的订单？"
     ]
   },
   "restaurant": {
     "id": "badeb30e-22d3-49c9-ad58-ff029473f796",
     "name": "Restaurant",
+    "name_zh": "餐厅",
     "title": "Restaurant Reservations",
+    "title_zh": "餐厅预订",
     "description": "AI assistant for dining reservations",
+    "description_zh": "AI智能餐厅预订助手",
     "icon": "fa-utensils",
     "suggestions": [
       "I'd like to make a reservation",
@@ -57,13 +93,24 @@
       "What are your opening hours?",
       "Can I book a table for 6 people?",
       "Do you cater for allergies?"
+    ],
+    "suggestions_zh": [
+      "我想预订座位",
+      "今天的菜单有什么？",
+      "你们有素食选择吗？",
+      "你们的营业时间是什么？",
+      "我能预订6人桌吗？",
+      "你们能处理过敏需求吗？"
     ]
   },
   "hairstudio": {
     "id": "056b0abf-b196-4a3d-80ec-a33371f7e13e",
     "name": "L'Artisan Men's Hair Studio",
+    "name_zh": "L'Artisan 男士发型工作室",
     "title": "Hair Studio Booking",
+    "title_zh": "发型工作室预约",
     "description": "Book appointments at our premium hair salon",
+    "description_zh": "预约我们的高端美发沙龙",
     "icon": "fa-cut",
     "suggestions": [
       "I'd like to book a haircut",
@@ -72,13 +119,24 @@
       "What are your opening hours?",
       "Can I see a specific stylist?",
       "Do you do beard trims?"
+    ],
+    "suggestions_zh": [
+      "我想预约理发",
+      "你们提供哪些服务？",
+      "理发多少钱？",
+      "你们的营业时间是什么？",
+      "我能指定发型师吗？",
+      "你们做修胡子吗？"
     ]
   },
   "hepa": {
     "id": "32605cc1-70a5-4900-97ad-5c866efc07cf",
     "name": "HEPA Maintenance",
+    "name_zh": "HEPA 维护服务",
     "title": "HEPA Maintenance Support",
+    "title_zh": "HEPA 维护技术支持",
     "description": "Technical support for HEPA systems",
+    "description_zh": "HEPA系统技术支持",
     "icon": "fa-tools",
     "suggestions": [
       "I need maintenance scheduled",
@@ -87,13 +145,24 @@
       "What's included in maintenance?",
       "How often should filters be changed?",
       "I have an urgent repair needed"
+    ],
+    "suggestions_zh": [
+      "我需要安排维护",
+      "我的HEPA滤芯需要更换",
+      "系统故障排除帮助",
+      "维护包括哪些内容？",
+      "滤芯多久需要更换一次？",
+      "我有紧急维修需求"
     ]
   },
   "dental": {
     "id": "3ab8607f-46b6-4b46-b069-f7fe61d95c5b",
     "name": "Dental Specialists",
+    "name_zh": "牙科专家",
     "title": "Dental Appointment Booking",
+    "title_zh": "牙科预约",
     "description": "Book appointments with our dental specialists",
+    "description_zh": "预约我们的牙科专家",
     "icon": "fa-tooth",
     "suggestions": [
       "I'd like to book a dental appointment",
@@ -102,13 +171,24 @@
       "What are your opening hours?",
       "Do you offer emergency appointments?",
       "I need a teeth cleaning"
+    ],
+    "suggestions_zh": [
+      "我想预约牙科",
+      "我牙疼",
+      "我需要牙科检查",
+      "你们的营业时间是什么？",
+      "你们提供急诊预约吗？",
+      "我需要洗牙"
     ]
   },
   "littlehotelier": {
     "id": "5c8ec392-5d91-4bc9-81b4-e7646f8068e6",
     "name": "Arkana Motel",
+    "name_zh": "Arkana 汽车旅馆",
     "title": "Hotel Booking Assistant",
+    "title_zh": "酒店预订助手",
     "description": "AI-powered booking assistant for Arkana Motel via Little Hotelier",
+    "description_zh": "Arkana汽车旅馆AI智能预订助手",
     "icon": "fa-bed",
     "suggestions": [
       "I'd like to book a room",
@@ -117,13 +197,24 @@
       "How much is a queen room?",
       "I want to check in tomorrow",
       "Do you have parking available?"
+    ],
+    "suggestions_zh": [
+      "我想预订房间",
+      "你们有哪些空房？",
+      "你们有允许宠物的房间吗？",
+      "大床房多少钱？",
+      "我想明天入住",
+      "你们有停车位吗？"
     ]
   },
   "superclinic": {
     "id": "fa59f1dd-5614-4008-9bb9-1f49b7ececcc",
     "name": "St Germain Superclinic",
+    "name_zh": "圣日耳曼超级诊所",
     "title": "Superclinic Reception",
+    "title_zh": "超级诊所前台",
     "description": "AI receptionist for St Germain Superclinic",
+    "description_zh": "圣日耳曼超级诊所AI智能接待",
     "icon": "fa-hospital",
     "suggestions": [
       "I'd like to book an appointment",
@@ -132,13 +223,24 @@
       "Do you accept walk-ins?",
       "I need to cancel my appointment",
       "What services do you offer?"
+    ],
+    "suggestions_zh": [
+      "我想预约挂号",
+      "你们的营业时间是什么？",
+      "我需要看医生",
+      "你们接受无预约就诊吗？",
+      "我需要取消预约",
+      "你们提供哪些服务？"
     ]
   },
   "mentalhealth": {
     "id": "79470696-55ef-4ed1-b51b-9559823641b8",
     "name": "Teen Mental Health Support",
+    "name_zh": "青少年心理健康支持",
     "title": "Mental Health Support",
+    "title_zh": "心理健康支持",
     "description": "Mental health support system for teenagers",
+    "description_zh": "青少年心理健康支持系统",
     "icon": "fa-brain",
     "suggestions": [
       "I'm feeling stressed",
@@ -147,6 +249,14 @@
       "I'm having trouble sleeping",
       "I feel overwhelmed with school",
       "Can you help me feel better?"
+    ],
+    "suggestions_zh": [
+      "我感到压力很大",
+      "我需要找人倾诉",
+      "如何缓解焦虑？",
+      "我睡不好觉",
+      "学业让我感到不堪重负",
+      "你能帮我感觉好一些吗？"
     ]
   }
 }

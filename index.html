@@ -9,11 +9,13 @@
     <link rel="stylesheet" href="/static/base.css">
     <link rel="stylesheet" href="/static/components.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="/static/i18n.js"></script>
     <script>
         (function(){
             var t = localStorage.getItem('theme') || 'light';
             document.documentElement.setAttribute('data-theme', t);
             if (t === 'dark') document.documentElement.classList.add('dark');
+            document.documentElement.setAttribute('lang', i18n.getLang());
         })();
     </script>
     <style>
@@ -42,6 +44,29 @@
         }
 
         .top-bar .logo-container { height: 28px; }
+
+        .top-bar-right {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-3);
+        }
+
+        /* Language selector */
+        .lang-select {
+            appearance: none;
+            -webkit-appearance: none;
+            background: var(--bg-card);
+            border: 1px solid var(--border-default);
+            border-radius: var(--radius-md);
+            padding: 2px 22px 2px 8px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            cursor: pointer;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23666'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 6px center;
+        }
 
         /* Theme toggle */
         .theme-toggle { cursor: pointer; user-select: none; }
@@ -185,7 +210,12 @@
                 <img src="/static/talkaFlow_logo_light_mode.png" alt="TalkaFlow" class="logo-light">
                 <img src="/static/talkaFlow_logo_dark_mode.png" alt="TalkaFlow" class="logo-dark">
             </a>
-            <div class="theme-toggle" onclick="toggleTheme()">
+            <div class="top-bar-right">
+                <select id="langSelect" class="lang-select" onchange="switchLang(this.value)">
+                    <option value="en">EN</option>
+                    <option value="zh">中文</option>
+                </select>
+                <div class="theme-toggle" onclick="toggleTheme()">
                 <div class="theme-track">
                     <div class="theme-icon theme-icon-sun" id="icon-sun">
                         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
@@ -196,19 +226,20 @@
                     <div class="theme-thumb" id="theme-thumb"></div>
                 </div>
             </div>
+            </div>
         </div>
 
         <!-- Page heading -->
         <div class="page-heading">
-            <h1>Voice AI Agents</h1>
-            <p>Choose an agent to start a voice conversation</p>
+            <h1 id="pageHeading">Voice AI Agents</h1>
+            <p id="pageSubtitle">Choose an agent to start a voice conversation</p>
         </div>
 
         <!-- Agent cards grid -->
         <div class="agent-grid" id="agentGrid"></div>
 
         <!-- Footer -->
-        <footer class="site-footer">
+        <footer class="site-footer" id="siteFooter">
             &copy; 2025 Powered and secured by <a href="https://www.talkaflow.com/" target="_blank">talkaFlow</a>.
         </footer>
     </div>
@@ -231,37 +262,64 @@
             if (sun) sun.style.opacity = isDark ? '0' : '1';
             if (moon) moon.style.opacity = isDark ? '1' : '0';
         }
+
+        // ========== Language Toggle ==========
+        var cachedAgents = null;
+
+        function switchLang(lang) {
+            i18n.setLang(lang);
+            applyTranslations();
+            if (cachedAgents) renderAgentCards(cachedAgents);
+        }
+
+        function applyTranslations() {
+            document.getElementById('pageHeading').textContent = i18n.t('heading');
+            document.getElementById('pageSubtitle').textContent = i18n.t('subtitle');
+            document.getElementById('siteFooter').innerHTML =
+                i18n.t('footerText') + ' <a href="https://www.talkaflow.com/" target="_blank">' + i18n.t('footerBrand') + '</a>.';
+        }
+
+        function renderAgentCards(agents) {
+            var grid = document.getElementById('agentGrid');
+            grid.innerHTML = '';
+            Object.keys(agents).forEach(function(key) {
+                var agent = agents[key];
+                var card = document.createElement('a');
+                var isLocal = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+                card.href = isLocal ? '/voice-agent.html?agent=' + key : '/' + key;
+                card.className = 'card agent-card';
+
+                card.innerHTML =
+                    '<div class="agent-icon"><i class="fas ' + agent.icon + '"></i></div>' +
+                    '<p class="agent-name">' + i18n.agentField(agent, 'name') + '</p>' +
+                    '<p class="agent-title">' + i18n.agentField(agent, 'title') + '</p>' +
+                    '<p class="agent-desc">' + i18n.agentField(agent, 'description') + '</p>' +
+                    '<span class="start-link"><i class="fas fa-phone-alt"></i> ' + i18n.t('startCall') + '</span>';
+
+                grid.appendChild(card);
+            });
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
             syncToggleUI(document.documentElement.getAttribute('data-theme') === 'dark');
+
+            // Set language selector to current language
+            var langSelect = document.getElementById('langSelect');
+            langSelect.value = i18n.getLang();
+            applyTranslations();
         });
 
         // ========== Load Agents ==========
         fetch('agents-config.json')
             .then(function(res) { return res.json(); })
             .then(function(agents) {
-                var grid = document.getElementById('agentGrid');
-                Object.keys(agents).forEach(function(key) {
-                    var agent = agents[key];
-                    var card = document.createElement('a');
-                    // Use clean URLs on Vercel, query params for local dev
-                    var isLocal = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
-                    card.href = isLocal ? '/voice-agent.html?agent=' + key : '/' + key;
-                    card.className = 'card agent-card';
-
-                    card.innerHTML =
-                        '<div class="agent-icon"><i class="fas ' + agent.icon + '"></i></div>' +
-                        '<p class="agent-name">' + agent.name + '</p>' +
-                        '<p class="agent-title">' + agent.title + '</p>' +
-                        '<p class="agent-desc">' + agent.description + '</p>' +
-                        '<span class="start-link"><i class="fas fa-phone-alt"></i> Start Call</span>';
-
-                    grid.appendChild(card);
-                });
+                cachedAgents = agents;
+                renderAgentCards(agents);
             })
             .catch(function(err) {
                 console.error('Failed to load agents:', err);
                 document.getElementById('agentGrid').innerHTML =
-                    '<p style="color: var(--text-secondary); text-align: center; grid-column: 1 / -1;">Failed to load agents. Please refresh the page.</p>';
+                    '<p style="color: var(--text-secondary); text-align: center; grid-column: 1 / -1;">' + i18n.t('loadError') + '</p>';
             });
     </script>
 </body>
