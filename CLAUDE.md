@@ -39,6 +39,7 @@ vercel deploy
    - Dynamically loads agents from `agents-config.json`
    - Responsive grid layout (1 col mobile, 2-3 cols desktop)
    - TalkaFlow branding with light/dark theme toggle
+   - English/Chinese language toggle (persists via localStorage)
    - Cards link to clean URLs (`/hotel`, `/clinic`, etc.) on Vercel, query params locally
 
 2. **Dynamic Voice Interface** (`voice-agent.html`)
@@ -48,26 +49,36 @@ vercel deploy
    - Real-time conversation UI with streaming transcripts
    - Debug panel for troubleshooting
    - TalkaFlow branding with light/dark mode logos
+   - English/Chinese language toggle (persists via localStorage)
    - Design token system (`static/tokens.css`, `static/base.css`, `static/components.css`)
    - Centered 420px card-based layout with sun/moon theme toggle
 
-2. **Agent Configuration** (`agents-config.json`)
+3. **Internationalization** (`static/i18n.js`)
+   - Shared i18n module loaded by both pages
+   - Supports English (`en`) and Chinese (`zh`) via localStorage key `lang`
+   - `i18n.t(key)` — get translated UI string for current language
+   - `i18n.agentField(agent, field)` — get agent field with language fallback (e.g., `name_zh` or `name`)
+   - `i18n.getLang()` / `i18n.setLang(lang)` — read/write current language
+   - Covers all UI strings: headings, buttons, status messages, alerts, footer, debug labels, transcript speaker names
+
+4. **Agent Configuration** (`agents-config.json`)
    - Defines all voice agents: hotel, clinic, aftersales, restaurant, hairstudio, hepa, dental, littlehotelier, superclinic, mentalhealth
    - Each agent has: ID, name, title, description, icon, and suggestion prompts
+   - Bilingual support: `name_zh`, `title_zh`, `description_zh`, `suggestions_zh` fields for Chinese
    - Easily extensible for new agents
 
-3. **Serverless API Proxy** (`api/ultravox.js`)
+5. **Serverless API Proxy** (`api/ultravox.js`)
    - Vercel serverless function
    - Proxies requests to Ultravox API to bypass CORS restrictions
    - Accepts `agentId` parameter to support multiple agents
    - Authentication: API key stored server-side
 
-4. **URL Routing** (`vercel.json`)
+6. **URL Routing** (`vercel.json`)
    - Clean URLs: `/hotel`, `/clinic`, `/restaurant`, etc.
    - Each route maps to `voice-agent.html?agent=<type>`
    - CORS headers for all routes
 
-5. **Reference Workflows** (`Demo_*.json`)
+7. **Reference Workflows** (`Demo_*.json`)
    - Original n8n + Twilio SIP workflows
    - Kept for reference and agent ID lookup
    - Not used in current implementation
@@ -106,6 +117,7 @@ vercel deploy
 - **Medium Type**: Uses `{ medium: { webRtc: {} } }` instead of Twilio SIP configuration
 - **Direct WebSocket**: Falls back to raw WebSocket connection when Ultravox SDK fails to load
 - **Status Management**: Tracks call states: disconnected → connecting → idle → listening → thinking → speaking
+- **Internationalization**: EN/ZH language toggle via `static/i18n.js`; language stored in `localStorage` key `lang`; agent-specific fields use `*_zh` suffixed keys in `agents-config.json` with English fallback
 
 ## Available Agents
 
@@ -120,7 +132,7 @@ See `agents-config.json` for full configuration. Current agents:
 7. **Superclinic** (`fa59f1dd-5614-4008-9bb9-1f49b7ececcc`) - St Germain Superclinic
 8. **Mental Health** (`79470696-55ef-4ed1-b51b-9559823641b8`) - Teen mental health support
 
-To add new agents: Update `agents-config.json`, `vercel.json` routing, and `voice-agent.html` path regex.
+To add new agents: Update `agents-config.json` (include `*_zh` fields for Chinese), `vercel.json` routing, and `voice-agent.html` path regex.
 
 ## Common Issues & Solutions
 
@@ -140,7 +152,8 @@ To add new agents: Update `agents-config.json`, `vercel.json` routing, and `voic
 
 - **`index.html`**: Agent landing page with responsive card grid (root `/` URL)
 - **`voice-agent.html`**: Main dynamic voice interface (supports all agents via URL params)
-- **`agents-config.json`**: Agent configurations (names, IDs, icons, suggestions)
+- **`agents-config.json`**: Agent configurations (names, IDs, icons, suggestions) with `*_zh` bilingual fields
+- **`static/i18n.js`**: Shared internationalization module (EN/ZH translations, `t()`, `agentField()` helpers)
 - **`static/tokens.css`**: Design tokens (colors, spacing, radius, shadows, dark mode)
 - **`static/base.css`**: Global resets, typography, logo light/dark switching
 - **`static/components.css`**: Reusable UI component patterns (cards, buttons, inputs)
