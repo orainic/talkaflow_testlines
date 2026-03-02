@@ -172,6 +172,22 @@
             color: var(--primary-hover);
         }
 
+        .agent-lang-badge {
+            display: inline-block;
+            font-size: 0.65rem;
+            font-weight: 600;
+            padding: 1px 6px;
+            border-radius: var(--radius-sm);
+            background: var(--palette-indigo-100, #e0e7ff);
+            color: var(--palette-indigo-700, #4338ca);
+            vertical-align: middle;
+            margin-left: var(--spacing-2);
+        }
+        [data-theme="dark"] .agent-lang-badge {
+            background: var(--palette-indigo-900, #312e81);
+            color: var(--palette-indigo-300, #a5b4fc);
+        }
+
         /* Footer */
         .site-footer {
             width: 100%;
@@ -289,9 +305,11 @@
                 card.href = isLocal ? '/voice-agent.html?agent=' + key : '/' + key;
                 card.className = 'card agent-card';
 
+                var langBadge = agent.lang === 'zh' ? ' <span class="agent-lang-badge">CN/中文</span>' : '';
+
                 card.innerHTML =
                     '<div class="agent-icon"><i class="fas ' + agent.icon + '"></i></div>' +
-                    '<p class="agent-name">' + i18n.agentField(agent, 'name') + '</p>' +
+                    '<p class="agent-name">' + i18n.agentField(agent, 'name') + langBadge + '</p>' +
                     '<p class="agent-title">' + i18n.agentField(agent, 'title') + '</p>' +
                     '<p class="agent-desc">' + i18n.agentField(agent, 'description') + '</p>' +
                     '<span class="start-link"><i class="fas fa-phone-alt"></i> ' + i18n.t('startCall') + '</span>';

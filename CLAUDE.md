@@ -128,11 +128,14 @@ See `agents-config.json` for full configuration. Current agents:
 3. **After-Sales** (`32605cc1-70a5-4900-97ad-5c866efc07cf`) - Powerbay product support
 4. **Restaurant** (`badeb30e-22d3-49c9-ad58-ff029473f796`) - Dining reservations
 5. **Hair Studio** (`056b0abf-b196-4a3d-80ec-a33371f7e13e`) - L'Artisan salon bookings
-6. **HEPA** (`d92f1c3b-1ee3-4ff5-86c9-ebe18b5b3bcd`) - Maintenance support
+6. **HEPA** (`d92f1c3b-1ee3-4ff5-86c9-ebe18b5b3bcd`) - Maintenance support (CN/中文)
 7. **Superclinic** (`fa59f1dd-5614-4008-9bb9-1f49b7ececcc`) - St Germain Superclinic
-8. **Mental Health** (`79470696-55ef-4ed1-b51b-9559823641b8`) - Teen mental health support
+8. **Mental Health** (`79470696-55ef-4ed1-b51b-9559823641b8`) - Teen mental health support (CN/中文)
+9. **Health Monitor** (`3a55bb12-6f3d-4020-b080-b391906d6255`) - Health monitoring & wellness assistant (CN/中文)
 
-To add new agents: Update `agents-config.json` (include `*_zh` fields for Chinese), `vercel.json` routing, and `voice-agent.html` path regex.
+Agents with `"lang": "zh"` in `agents-config.json` are Chinese-only and display a **CN/中文** badge on the landing page.
+
+To add new agents: Update `agents-config.json` (include `*_zh` fields for Chinese, optionally `"lang": "zh"` for Chinese-only agents), `vercel.json` routing, and `voice-agent.html` path regex.
 
 ## Common Issues & Solutions
 

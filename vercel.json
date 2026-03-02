@@ -7,7 +7,7 @@
       "destination": "/index.html"
     },
     {
-      "source": "/:agent(hotel|clinic|aftersales|restaurant|hairstudio|hepa|dental|littlehotelier|superclinic|mentalhealth)",
+      "source": "/:agent(hotel|clinic|aftersales|restaurant|hairstudio|hepa|dental|littlehotelier|superclinic|mentalhealth|healthmonitor)",
       "destination": "/voice-agent.html"
     },
     {

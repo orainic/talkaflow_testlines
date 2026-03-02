@@ -138,6 +138,7 @@
     "description": "Technical support for HEPA systems",
     "description_zh": "HEPA系统技术支持",
     "icon": "fa-tools",
+    "lang": "zh",
     "suggestions": [
       "I need maintenance scheduled",
       "My HEPA filter needs replacing",
@@ -242,6 +243,7 @@
     "description": "Mental health support system for teenagers",
     "description_zh": "青少年心理健康支持系统",
     "icon": "fa-brain",
+    "lang": "zh",
     "suggestions": [
       "I'm feeling stressed",
       "I need someone to talk to",
@@ -257,6 +259,33 @@
       "我睡不好觉",
       "学业让我感到不堪重负",
       "你能帮我感觉好一些吗？"
+    ]
+  },
+  "healthmonitor": {
+    "id": "3a55bb12-6f3d-4020-b080-b391906d6255",
+    "name": "Health Monitoring Assistant",
+    "name_zh": "健康监测助手",
+    "title": "Health Monitoring",
+    "title_zh": "健康监测",
+    "description": "AI-powered health monitoring and wellness assistant",
+    "description_zh": "AI智能健康监测与健康管理助手",
+    "icon": "fa-heartbeat",
+    "lang": "zh",
+    "suggestions": [
+      "How is my health today?",
+      "I want to check my vitals",
+      "Give me a wellness report",
+      "I'm not feeling well",
+      "What should I monitor daily?",
+      "Help me track my symptoms"
+    ],
+    "suggestions_zh": [
+      "我今天的健康状况如何？",
+      "我想检查我的生命体征",
+      "给我一份健康报告",
+      "我感觉不舒服",
+      "我每天应该监测什么？",
+      "帮我追踪我的症状"
     ]
   }
 }
