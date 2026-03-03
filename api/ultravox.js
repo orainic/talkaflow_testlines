@@ -20,7 +20,7 @@ export default async function handler(req, res) {
   const ULTRAVOX_API_KEY = process.env.ULTRAVOX_API_KEY;
 
   if (!ULTRAVOX_API_KEY) {
-    res.status(500).json({ error: 'API key not configured. Please set ULTRAVOX_API_KEY environment variable in Vercel.' });
+    res.status(500).json({ error: 'API key not configured. Please set the API key environment variable in Vercel.' });
     return;
   }
 
@@ -57,7 +57,7 @@ export default async function handler(req, res) {
       );
       const data = await response.json();
       if (!response.ok) {
-        res.status(response.status).json({ error: 'Ultravox API error', details: data });
+        res.status(response.status).json({ error: 'Voice AI API error', details: data });
         return;
       }
       res.status(200).json(data);
@@ -112,7 +112,7 @@ export default async function handler(req, res) {
 
     if (!response.ok) {
       res.status(response.status).json({
-        error: 'Ultravox API error',
+        error: 'Voice AI API error',
         details: data
       });
       return;

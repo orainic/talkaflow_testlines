@@ -303,10 +303,10 @@
                     const mod = await import(src);
                     if (mod.UltravoxSession) {
                         window.UltravoxSession = mod.UltravoxSession;
-                        console.log('SDK loaded from:', src);
+                        console.log('Voice AI SDK loaded successfully');
                         return true;
                     }
-                } catch (e) { console.log('Failed:', src); }
+                } catch (e) { console.log('Voice AI SDK source unavailable, trying next...'); }
             }
             return false;
         };
@@ -766,7 +766,7 @@
         // ========== API Call ==========
         async function createCall() {
             try {
-                log(`Making API request via proxy: /api/ultravox`);
+                log(`Making API request via proxy: /api/voice-agent`);
                 const response = await fetch('/api/ultravox', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },

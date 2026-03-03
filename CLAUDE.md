@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a **multi-agent Ultravox Voice AI system** providing browser-based voice interfaces for various business use cases. The project provides direct browser-to-Ultravox connections via serverless API proxy, supporting 6 different voice agents.
+This is a **multi-agent Voice AI system** providing browser-based voice interfaces for various business use cases. The project provides direct browser-to-Voice AI connections via serverless API proxy, supporting multiple voice agents.
 
 **Core Purpose**: Enable businesses to embed AI voice assistants for customer service across different industries: hotels, clinics, restaurants, after-sales support, hair salons, and maintenance services.
 
@@ -44,7 +44,7 @@ vercel deploy
 
 2. **Dynamic Voice Interface** (`voice-agent.html`)
    - Single HTML file supporting multiple agents via URL parameters
-   - Direct browser-to-Ultravox WebSocket connections
+   - Direct browser-to-Voice AI WebSocket connections
    - Handles microphone access and media permissions
    - Real-time conversation UI with streaming transcripts
    - Debug panel for troubleshooting
@@ -69,7 +69,7 @@ vercel deploy
 
 5. **Serverless API Proxy** (`api/ultravox.js`)
    - Vercel serverless function
-   - Proxies requests to Ultravox API to bypass CORS restrictions
+   - Proxies requests to Voice AI API to bypass CORS restrictions
    - Accepts `agentId` parameter to support multiple agents
    - Authentication: API key stored server-side
 
@@ -100,13 +100,13 @@ vercel deploy
    ↓
 5. User clicks "Start Voice Call"
    ↓
-6. Browser → /api/ultravox (POST with agentId)
+6. Browser → /api/voice-agent (POST with agentId)
    ↓
-7. Vercel Function → Ultravox API (create call)
+7. Vercel Function → Voice AI API (create call)
    ↓
-8. Ultravox returns joinUrl & credentials
+8. API returns joinUrl & credentials
    ↓
-9. Browser connects via Ultravox SDK WebSocket
+9. Browser connects via Voice AI SDK WebSocket
    ↓
 10. Real-time voice conversation (user ↔ AI agent)
 ```
@@ -115,7 +115,7 @@ vercel deploy
 
 - **SDK Loading**: Multiple fallback CDN paths attempted (unpkg, jsdelivr, skypack, esm.run) due to network restrictions
 - **Medium Type**: Uses `{ medium: { webRtc: {} } }` instead of Twilio SIP configuration
-- **Direct WebSocket**: Falls back to raw WebSocket connection when Ultravox SDK fails to load
+- **Direct WebSocket**: Falls back to raw WebSocket connection when Voice AI SDK fails to load
 - **Status Management**: Tracks call states: disconnected → connecting → idle → listening → thinking → speaking
 - **Internationalization**: EN/ZH language toggle via `static/i18n.js`; language stored in `localStorage` key `lang`; agent-specific fields use `*_zh` suffixed keys in `agents-config.json` with English fallback
 
@@ -163,7 +163,7 @@ To add new agents: Update `agents-config.json` (include `*_zh` fields for Chines
 - **`static/talkaFlow_logo_light_mode.png`**: TalkaFlow logo for light theme
 - **`static/talkaFlow_logo_dark_mode.png`**: TalkaFlow logo for dark theme
 - **`static/favicon.ico`**: Favicon
-- **`api/ultravox.js`**: Serverless API proxy for Ultravox calls
+- **`api/ultravox.js`**: Serverless API proxy for Voice AI calls
 - **`vercel.json`**: Deployment config with URL routing and CORS
 - **`talkaFlow_logo_only.png`**: Legacy TalkaFlow branding logo
 - **`AGENT_URLS.md`**: Documentation for embedding agents in Wix
@@ -179,6 +179,12 @@ To add new agents: Update `agents-config.json` (include `*_zh` fields for Chines
 5. **Debug**: Open browser DevTools console and/or expand "Technical Information" panel
 6. **Deploy**: Push to GitHub - Vercel auto-deploys
 7. **Verify Production**: Test each URL: `/hotel`, `/clinic`, `/restaurant`, etc.
+
+## Branding
+
+- **All user-visible UI** (debug panel, console logs, error messages, status text) must refer to **"Voice AI"** — never expose the underlying provider name
+- Internal code (variable names, API URLs, file paths, code comments) may still reference the provider for clarity
+- The i18n module (`static/i18n.js`) already uses "Voice SDK" for SDK-related strings
 
 ## API Key & Security
 
