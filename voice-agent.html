@@ -576,8 +576,15 @@
 
         function clearStoredLogs() {
             try {
-                localStorage.removeItem('talkaflow_call_logs');
-                console.log('All call logs cleared from storage');
+                // Only clear logs for the current agent, preserve other agents' logs
+                const allLogs = getStoredLogs();
+                const remaining = allLogs.filter(entry => entry.agentType !== agentType);
+                if (remaining.length > 0) {
+                    localStorage.setItem('talkaflow_call_logs', JSON.stringify(remaining));
+                } else {
+                    localStorage.removeItem('talkaflow_call_logs');
+                }
+                console.log('Call logs cleared for agent:', agentType);
             } catch (error) {
                 console.error('Failed to clear logs:', error);
             }
@@ -585,7 +592,9 @@
 
         function downloadLogs() {
             try {
-                const logs = getStoredLogs();
+                // Only download logs for the current agent
+                const allLogs = getStoredLogs();
+                const logs = allLogs.filter(entry => entry.agentType === agentType);
                 const logText = logs.map(entry => {
                     return `[${entry.fullTimestamp}] [Session: ${entry.sessionId || 'N/A'}] [${entry.type.toUpperCase()}] ${entry.message}`;
                 }).join('\n');
@@ -594,7 +603,7 @@
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = `talkaflow_logs_${new Date().toISOString().replace(/:/g, '-')}.txt`;
+                a.download = `talkaflow_${agentType}_logs_${new Date().toISOString().replace(/:/g, '-')}.txt`;
                 document.body.appendChild(a);
                 a.click();
                 document.body.removeChild(a);
@@ -1057,8 +1066,8 @@
             log(`Connection: ${navigator.connection?.effectiveType || 'Unknown'}`);
             log(`Agent Type: ${agentType}`);
 
-            const storedLogs = getStoredLogs();
-            log(`Stored logs: ${storedLogs.length} entries in localStorage`);
+            const storedLogs = getStoredLogs().filter(entry => entry.agentType === agentType);
+            log(`Stored logs: ${storedLogs.length} entries for this agent`);
             if (storedLogs.length > 0) {
                 log(`Oldest log: ${storedLogs[0].fullTimestamp}`);
                 log(`Newest log: ${storedLogs[storedLogs.length - 1].fullTimestamp}`);
